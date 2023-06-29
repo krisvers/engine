@@ -27,3 +27,5 @@ run-testbed:
 	@./testbed/bin/testbed
 
 all: build-engine build-testbed
+
+run: run-testbed
