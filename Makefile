@@ -27,5 +27,7 @@ run-testbed:
 	@./testbed/bin/testbed
 
 all: build-engine build-testbed
+debug: debug-engine debug-testbed
+clean: clean-engine clean-testbed
 
 run: run-testbed

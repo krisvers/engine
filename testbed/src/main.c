@@ -1,8 +1,21 @@
 #include <stdio.h>
 #include <dlfcn.h>
+#include <core/logger.h>
 
 #define LIB_FILE "./engine/bin/engine.so"
-#define SYMBOL "main"
+
+#define OPEN(name)								\
+	*((void **) &name) = dlsym(handle, #name);	\
+	if (name == NULL) {							\
+		printf("%s\n", dlerror());				\
+		return -1;								\
+	}
+#define OPEN_SYMBOL(name, symbol) \
+	*((void **) &name) = dlsym(handle, #symbol);\
+	if (name == NULL) {							\
+		printf("%s\n", dlerror());				\
+		return -1;								\
+	}
 
 int main(void) {
 	void * handle;
@@ -14,11 +27,11 @@ int main(void) {
 		return -1;
 	}
 
-	*((void **) &entry) = dlsym(handle, SYMBOL);
-	if (entry == NULL) {
-		printf("%s\n", dlerror());
-		return -1;
-	}
+	OPEN_SYMBOL(entry, main);
 
-	return entry();
+	printf("testbed: executing entry point\n");
+	entry();
+	printf("testbed: entry point exited\n");
+
+	return 0;
 }
