@@ -8,9 +8,13 @@ BINDIR = ./bin
 BIN = $(BINDIR)/testbed
 
 WINCC = x86_64-w64-mingw32-gcc
-WINLIBS = -L../bin -lengine
+WINLIBS = -L../bin -L../winlib -lengine
 WINFLAGS = -std=c99 -Wall -Wextra -Wno-unused-parameter -Iinclude -I../include -mwindows -Wl,-subsystem,windows -DKIMPORT -fPIC -g -Wl,-rpath,.
 WINBIN = $(BINDIR)/testbed.exe
+
+MACLIBS = -L../bin -L../maclib -lengine -lglfw3
+MACFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -Iinclude -I../include -DKIMPORT -shared -undefined dynamic_lookup
+MACBIN = $(BINDIR)/testbed.dylib
 
 .PHONY = clean build
 
@@ -22,6 +26,9 @@ debug:
 
 win:
 	$(WINCC) $(WINFLAGS) $(WINLIBS) $(FILES) -o $(WINBIN)
+
+mac:
+	$(CC) $(MACFLAGS) $(MACLIBS) $(FILES) -o $(MACBIN)
 
 clean:
 	@rm -rf $(BINDIR)/*

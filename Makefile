@@ -42,7 +42,12 @@ run-testbed-win:
 	@echo "> Running engine testbed.exe"
 	@./engine/testbed/bin/testbed.exe
 
+build-engine-mac:
+	@echo "> Building engine for $(OS)"
+	@make mac -C engine/ --no-print-directory
+
 win: build-engine-win build-testbed-win
+mac: build-engine-mac
 debug: debug-engine debug-testbed
 clean: clean-engine clean-testbed
 run: run-testbed

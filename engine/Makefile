@@ -10,7 +10,11 @@ BIN = $(BINDIR)/libengine.so
 WINCC = x86_64-w64-mingw32-gcc
 WINLIBS = -Lwinlib -lglfw3 -lgdi32 -lkernel32
 WINFLAGS = -std=c99 -Wall -Wextra -Wno-unused-parameter -Iinclude -Iwinclude -mwindows -Wl,-subsystem,windows -DKEXPORT -DKWINDOWS_DLL -DGLFW_DLL -shared
-WINBIN = $(BINDIR)/libengine.dll
+WINBIN = $(BINDIR)/libengine.dl
+
+MACFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-gnu-zero-variadic-macro-arguments -Imacinclude -Iinclude -shared -undefined dynamic_lookup -ferror-limit=100 -DKEXPORT
+MACLIBS = -Lmaclib -lglfw3 -framework Cocoa -framework IOKit
+MACBIN = $(BINDIR)/libengine.dylib
 
 VERSION = version-0.1_0
 PKGDIR = package/
@@ -22,6 +26,9 @@ build:
 
 debug:
 	$(CC) $(DEBUG) $(FLAGS) $(LIBS) $(FILES) -o $(BIN)
+
+mac:
+	$(CC) $(MACFLAGS) $(MACLIBS) $(FILES) -o $(MACBIN)
 
 win:
 	$(WINCC) $(WINFLAGS) $(WINLIBS) $(FILES) -o $(WINBIN)
