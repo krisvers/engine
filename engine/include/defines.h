@@ -59,13 +59,13 @@ typedef char b8;
 #endif
 
 #ifdef KEXPORT
-	#ifdef _MSC_VER
+	#ifdef KWINDOWS_DLL
 		#define KAPI __declspec(dllexport)
 	#else
 		#define KAPI __attribute__((visibility("default")))
 	#endif
 #else
-	#ifdef _MSC_VER
+	#ifdef KWINDOWS_DLL
 		#define KAPI __declspec(dllimport)
 	#else
 		#define KAPI

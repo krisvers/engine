@@ -1,4 +1,5 @@
 #include <core/logger.h>
+#include <platform/platform.h>
 #include <defines.h>
 #include <time.h>
 #include <stdio.h>
@@ -62,30 +63,41 @@ void KAPI log_output(log_level_enum level, const char * message, ...) {
 	__builtin_va_list arg_ptr;
 	va_start(arg_ptr, message);
 
-	char message_buffer[1024];
-	memset(message_buffer, 0, 1024);
+	char format_buffer[1024];
+	memset(format_buffer, 0, 1024);
 
-	vsnprintf(message_buffer, 1024, message, arg_ptr);
+	vsnprintf(format_buffer, 1024, message, arg_ptr);
 	va_end(arg_ptr);
 
 	if (log_custom_output != NULL) {
-		log_custom_output(level, message_buffer);
+		log_custom_output(level, format_buffer);
 	}
 
 	if (log_to_files && log_output_file != NULL) {
-		log_output_file(level, message_buffer);
+		log_output_file(level, format_buffer);
 	}
 
 	size_t last = 0;
-	for (size_t i = 0; message_buffer[i] != '\0'; ++i) {
-		if (message_buffer[i] == '\n') {
-			message_buffer[i] = '\0';
-			printf("%s: %s\n", log_level_strings[level], &message_buffer[last]);
+	for (size_t i = 0; format_buffer[i] != '\0'; ++i) {
+		if (format_buffer[i] == '\n') {
+			format_buffer[i] = '\0';
+			platform_console_write(log_level_strings[level], level);
+			platform_console_write(": ", level);
+			platform_console_write(&format_buffer[last], level);
+			platform_console_write("\n", 7);
 			last = i + 1;
+		}
+
+		if (i >= 1024) {
+			format_buffer[1023] = '\0';
+			break;
 		}
 	}
 	if (last == 0) {
-		printf("%s: %s\n", log_level_strings[level], message_buffer);
+		platform_console_write(log_level_strings[level], level);
+		platform_console_write(": ", level);
+		platform_console_write(&format_buffer[last], level);
+		platform_console_write("\n", 7);
 	}
 }
 

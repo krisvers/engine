@@ -1,3 +1,7 @@
-Log File Creation Time: Fri Jun 30 02:15:37 2023
+Log File Creation Time: Fri Jun 30 21:06:45 2023
 
 [INFO]: test test test 123
+[INFO]: window 0x5654797ba980: mouse moved (780.000000, 704.000000)
+[INFO]: window 0x5654797ba980: key 343, 133, 1, 0 pressed
+[INFO]: window 0x5654797ba980: key 340, 50, 1, 8 pressed
+[INFO]: window 0x5654797ba980 is being closed

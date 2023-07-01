@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#define CONFIG_WINDOW_X 500
+#define CONFIG_WINDOW_Y 200
 #define CONFIG_WINDOW_WIDTH 800
 #define CONFIG_WINDOW_HEIGHT 600
 #define CONFIG_WINDOW_NAME "window"

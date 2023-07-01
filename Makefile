@@ -1,9 +1,13 @@
+OS = $(shell uname -sm)
+
+all: build-engine build-testbed
+
 build-engine:
-	@echo "> Building engine"
+	@echo "> Building engine for $(OS)"
 	@make build -C engine/ --no-print-directory
 
 debug-engine:
-	@echo "> Building engine debug"
+	@echo "> Building engine debug for $(OS)"
 	@make debug -C engine/ --no-print-directory
 
 clean-engine:
@@ -11,23 +15,35 @@ clean-engine:
 	@make clean -C engine/ --no-print-directory
 
 build-testbed:
-	@echo "> Building testbed"
-	@make build -C testbed/ --no-print-directory
+	@echo "> Building testbed for $(OS)"
+	@make build -C engine/testbed/ --no-print-directory
 
 debug-testbed:
-	@echo "> Building testbed debug"
-	@make debug -C testbed/ --no-print-directory
+	@echo "> Building testbed debug for $(OS)"
+	@make debug -C engine/testbed/ --no-print-directory
 
 clean-testbed:
 	@echo "> Cleaning testbed"
-	@make clean -C testbed/ --no-print-directory
+	@make clean -C engine/testbed/ --no-print-directory
 
 run-testbed:
-	@echo "> Running engine testbed"
-	@./testbed/bin/testbed
+	@echo "> Running engine testbed for $(OS)"
+	@./engine/testbed/bin/testbed
 
-all: build-engine build-testbed
+build-engine-win:
+	@echo "> Building engine for Windows x64"
+	@make win -C engine/ --no-print-directory
+
+build-testbed-win:
+	@echo "> Building testbed for Windows x64"
+	@make win -C engine/testbed/ --no-print-directory
+
+run-testbed-win:
+	@echo "> Running engine testbed.exe"
+	@./engine/testbed/bin/testbed.exe
+
+win: build-engine-win build-testbed-win
 debug: debug-engine debug-testbed
 clean: clean-engine clean-testbed
-
 run: run-testbed
+run-win: run-testbed-win

@@ -28,7 +28,7 @@ void log_deinit(void);
 void KAPI log_set_logfile(char * filename);
 void KAPI log_unset_logfile(void);
 
-typedef void KAPI (* logger_func)(log_level_enum level, const char * message);
+typedef void (* logger_func)(log_level_enum level, const char * message);
 
 logger_func KAPI log_get_current_custom(void);
 void KAPI log_hijack(logger_func lf);

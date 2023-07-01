@@ -1,0 +1,4 @@
+Log File Creation Time: Fri Jun 30 20:16:46 2023
+
+[INFO]: test test test 123
+[INFO]: window 00000000007a3470 is being closed
