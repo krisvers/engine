@@ -46,9 +46,14 @@ build-engine-mac:
 	@echo "> Building engine for $(OS)"
 	@make mac -C engine/ --no-print-directory
 
+install-engine:
+	@echo "> Installing engine"
+	@make install -C engine/ --no-print-directory
+
 win: build-engine-win build-testbed-win
 mac: build-engine-mac
 debug: debug-engine debug-testbed
 clean: clean-engine clean-testbed
 run: run-testbed
 run-win: run-testbed-win
+install: install-engine

@@ -1,5 +1,6 @@
 #include <core/application.h>
 #include <core/logger.h>
+#include <core/mem.h>
 #include <platform/platform.h>
 
 typedef struct applicationState {
@@ -17,7 +18,8 @@ static application_state_t app_state;
 
 b8 application_create(game_t * instance) {
 	if (initialized) {
-		KFATAL("[application_create(config)]\nalready initialized");
+		KFATAL("[application_create(config)]:");
+		KFATAL(" already initialized");
 		return FALSE;
 	}
 
@@ -43,12 +45,14 @@ b8 application_create(game_t * instance) {
 		instance->app_config.x, instance->app_config.y,
 		instance->app_config.w, instance->app_config.h)
 	) {
-		KFATAL("[application_create()]\nFailed to startup platform");
+		KFATAL("[application_create()]:");
+		KFATAL(" Failed to startup platform");
 		return FALSE;
 	}
 
 	if (!app_state.game_instance->initialize(app_state.game_instance)) {
-		KFATAL("[application_create()]\nGame failed to initialize");
+		KFATAL("[application_create()]:");
+		KFATAL(" Game failed to initialize");
 		return FALSE;
 	}
 
@@ -57,8 +61,10 @@ b8 application_create(game_t * instance) {
 }
 
 b8 application_run(void) {
+	KINFO(memory_get_usage_cstr());
 	if (!initialized) {
-		KFATAL("[application_run()]\nApplication was not initialized");
+		KFATAL("[application_run()]:");
+		KFATAL(" Application was not initialized");
 		return FALSE;
 	}
 
@@ -72,13 +78,15 @@ b8 application_run(void) {
 		}
 
 		if (!app_state.game_instance->update(app_state.game_instance, 0.0f)) {
-			KFATAL("[application_run()]\nGame update failed!");
+			KFATAL("[application_run()]:");
+			KFATAL(" Game update failed!");
 			app_state.running = FALSE;
 			break;
 		}
 
 		if (!app_state.game_instance->render(app_state.game_instance, 0.0f)) {
-			KFATAL("[application_run()]\nGame render failed!");
+			KFATAL("[application_run()]");
+			KFATAL(" Game render failed!");
 			app_state.running = FALSE;
 			break;
 		}

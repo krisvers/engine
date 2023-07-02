@@ -31,7 +31,8 @@ void KAPI log_set_logfile(char * filename) {
 	logfile = filename;
 	logfp = fopen(filename, "w");
 	if (logfp == NULL) {
-		KFATAL("[log_set_logfile()] can't create file %s\n", filename);
+		KFATAL("[log_set_logfile()]:");
+		KFATAL(" can't create file %s", filename);
 		log_deinit();
 		abort();
 	}
