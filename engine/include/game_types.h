@@ -9,6 +9,7 @@ typedef struct game {
 	b8 (* update)(struct game * instance, f64 delta_time);
 	b8 (* render)(struct game * instance, f64 delta_time);
 	void * state;
+	u16 update_frequency;
 } game_t;
 
 typedef b8 (* game_initialize_func)(game_t * instance);

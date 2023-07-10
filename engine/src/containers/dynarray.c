@@ -1,14 +1,92 @@
 #include <containers/dynarray.h>
 #include <core/mem.h>
+#include <core/logger.h>
+#include <defines.h>
 
-void * _dynarray_create(u64 length, u64 stride) {
-	u64 header_size = DYNARRAY_FIELD_LENGTH * sizeof(u64);
-	u64 array_size = length * stride;
-	u64 * new_array = kmalloc(header_size + array_size, MEMORY_TAG_DYNAMIC_ARRAY);
+dynarray_t * _dynarray_create(u64 length, u64 stride) {
+	dynarray_t * new_array = kmalloc(sizeof(dynarray_t), MEMORY_TAG_DYNAMIC_ARRAY);
+	new_array->array = kmalloc(length * stride, MEMORY_TAG_DYNAMIC_ARRAY);
 
-	new_array[DYNARRAY_CAPACITY] = length;
-	new_array[DYNARRAY_LENGTH] = 0;
-	new_array[DYNARRAY_STRIDE] = stride;
+	new_array->capacity = length;
+	new_array->length = 0;
+	new_array->stride = stride;
 
-	return (void *) new_array + DYNARRAY_FIELD_LENGTH;
+	return new_array;
+}
+
+void _dynarray_destroy(dynarray_t * array) {
+	kfree(array->array, array->stride * array->capacity, MEMORY_TAG_DYNAMIC_ARRAY);
+	kfree(array, sizeof(dynarray_t), MEMORY_TAG_DYNAMIC_ARRAY);
+}
+
+dynarray_t * _dynarray_resize(dynarray_t * array) {
+	dynarray_t * tmp = _dynarray_create(
+		(DYNARRAY_RESIZE_FACTOR * array->capacity),
+		array->stride
+	);
+	kmemcpy(tmp, array, 24 + array->length * array->stride);
+
+	tmp->length = array->length;
+	_dynarray_destroy(array);
+	return tmp;
+}
+
+dynarray_t * _dynarray_push(dynarray_t * array, void * value_ptr) {
+	if (array->length >= array->capacity) {
+		array = _dynarray_resize(array);
+	}
+
+	kmemcpy((void *) (array->array + array->length * array->stride), value_ptr, array->stride);
+	++array->length;
+	return array;
+}
+
+void _dynarray_pop(dynarray_t * array, void * dst) {
+	kmemcpy(dst, (void *) (array->array + (array->length - 1) * array->stride), array->stride);
+	--array->length;
+}
+
+dynarray_t * _dynarray_pop_at(dynarray_t * array, u64 index, void * dst) {
+	if (index >= array->length) {
+		KERROR("[_dynarray_pop_at(array, index, dst)]");
+		KERROR("index is outside of the bounds for this array! length: %llu, index: %llu", array->length, index);
+		return array;
+	}
+
+	kmemcpy(dst, (void *) (array->array + (index * array->stride)), array->stride);
+
+	if (index != array->length - 1) {
+		kmemcpy(
+			(void *) (array->array + (index + array->stride)),
+			(void *) (array->array + (index + 1) * array->stride),
+			array->stride * (array->length - index)
+		);
+	}
+
+	--array->length;
+	return array;
+}
+
+dynarray_t * _dynarray_insert_at(dynarray_t * array, u64 index, void * value_ptr) {
+	if (index >= array->length) {
+		KERROR("[_dynarray_insert_at(array, index, value_ptr)]");
+		KERROR("index is outside of the bounds for this array! length: %llu, index: %llu", array->length, index);
+		return array;
+	}
+	if (array->length >= array->capacity) {
+		array = _dynarray_resize(array);
+	}
+
+	if (index != array->length - 1) {
+		kmemcpy(
+			(void *) (array->array + (index + 1) * array->stride),
+			(void *) (array->array + (index * array->stride)),
+			array->stride * (array->length - index)
+		);
+	}
+
+	kmemcpy((void *) (array->array + (index * array->stride)), value_ptr, array->stride);
+
+	++array->length;
+	return array;
 }

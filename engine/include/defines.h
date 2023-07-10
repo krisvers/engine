@@ -17,8 +17,12 @@ typedef double f64;
 typedef int b32;
 typedef char b8;
 
+typedef void * vptr;
+
 #define TRUE 1
 #define FALSE 0
+
+#define NULL ((void *) 0)
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 	#define KPLATFORM_WINDOWS 1

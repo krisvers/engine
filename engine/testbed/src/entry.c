@@ -25,6 +25,7 @@ b8 game_create(game_t * out_game) {
 	out_game->initialize = game_initialize;
 	out_game->update = game_update;
 	out_game->render = game_render;
+	out_game->update_frequency = 128;
 	out_game->state = kmalloc(sizeof(game_state_t), MEMORY_TAG_GAME);
 
 	return TRUE;
@@ -32,8 +33,6 @@ b8 game_create(game_t * out_game) {
 
 int main(void) {
 	memory_init();
-
-	printf("%zu\n", sizeof(u64));
 
 	game_t instance;
 	if (!game_create(&instance)) {
@@ -53,8 +52,6 @@ int main(void) {
 		return FAILURE_APPLICATION_CREATION;
 	}
 
-	void * ptr = kmalloc((u64) 0x2FFFFFFFF, MEMORY_TAG_UNKNOWN);
-
 	// Game loop
 	printf("Running application\n");
 	if (!application_run()) {
@@ -63,7 +60,6 @@ int main(void) {
 	}
 	printf("Application was successful\n");
 
-	kfree(ptr, (u64) 0x2FFFFFFFF, MEMORY_TAG_DYNAMIC_ARRAY);
 	memory_deinit();
 
 	return 0;

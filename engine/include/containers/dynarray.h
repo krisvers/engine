@@ -10,19 +10,23 @@ enum {
 	DYNARRAY_FIELD_LENGTH
 };
 
-void KAPI * _dynarray_create(u64 length, u64 stride);
-void KAPI * _dynarray_destroy(void * array);
+typedef struct dynArray {
+	u64 capacity;
+	u64 length;
+	u64 stride;
+	void * array;
+} dynarray_t;
 
-u64 KAPI _dynarray_field_get(void * array, u64 field);
-void KAPI _dynarray_field_set(void * array, u64 field, u64 value);
+dynarray_t KAPI * _dynarray_create(u64 length, u64 stride);
+void KAPI _dynarray_destroy(dynarray_t * array);
 
-void KAPI * _dynarray_resize(void * array);
+dynarray_t KAPI * _dynarray_resize(dynarray_t * array);
 
-void KAPI * _dynarray_push(void * array, const void * value_ptr);
-void KAPI _dynarray_pop(void * array, void * dst);
+dynarray_t KAPI * _dynarray_push(dynarray_t * array, void * value_ptr);
+void KAPI _dynarray_pop(dynarray_t * array, void * dst);
 
-void KAPI * _dynarray_push_at(void * array, u64 index, const void * value_ptr);
-void KAPI _dynarray_pop_at(void * array, u64 index, void * dst);
+dynarray_t KAPI * _dynarray_insert_at(dynarray_t * array, u64 index, void * value_ptr);
+dynarray_t KAPI * _dynarray_pop_at(dynarray_t * array, u64 index, void * dst);
 
 #define DYNARRAY_DEFAULT_CAPACITY 1
 #define DYNARRAY_RESIZE_FACTOR 2
@@ -35,19 +39,25 @@ void KAPI _dynarray_pop_at(void * array, u64 index, void * dst);
 
 #define dynarray_destroy(array) _dynarray_destroy(array);
 
-#define dynarray_push(array, value)				\
-	{											\
-		typeof(value) tmp = value;				\
-		array = _dynarray_push(array, &tmp);	\
+#define dynarray_push(array, value)						\
+	{													\
+		__typeof__(value) tmp = value;					\
+		array = _dynarray_push(array, (void *) &tmp);	\
 	}
 
 #define dynarray_pop(array, value_ptr) \
 	_dynarray_pop(array, value_ptr);
 
-#define dynarray_insert_at(array, index, value)				\
-	{														\
-		typeof(value) tmp = value;							\
-		array = _dynarray_insert_at(array, index, &tmp);	\
+#define dynarray_insert_at(array, index, value)						\
+	{																\
+		__typeof__(value) tmp = value;								\
+		array = _dynarray_insert_at(array, index, (void *) &tmp);	\
+	}
+
+#define dynarray_remove_at(array, index, type)					\
+	{															\
+		type tmp;												\
+		array = _dynarray_pop_at(array, index, (void *) &tmp);	\
 	}
 
 #define dynarray_pop_at(array, index, value_ptr) \
@@ -55,14 +65,5 @@ void KAPI _dynarray_pop_at(void * array, u64 index, void * dst);
 
 #define dynarray_clear(array) \
 	_dynarray_field_set(array, DYNARRAY_LENGTH, 0)
-
-#define dynarray_capacity(array) \
-	_dynarray_field_get(array, DYNARRAY_CAPACITY)
-
-#define dynarray_stride(array) \
-	_dynarray_field_get(array, DYNARRAY_STRIDE)
-
-#define dynarray_length_set(array, value) \
-	_dynarray_field_set(array, DYNARRAY_LENGTH, value);
 
 #endif

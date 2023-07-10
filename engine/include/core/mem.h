@@ -25,8 +25,8 @@ typedef enum memoryTagEnum {
 	MEMORY_TAG_MAX,
 } memory_tag_enum;
 
-void memory_init(void);
-void memory_deinit(void);
+void KAPI memory_init(void);
+void KAPI memory_deinit(void);
 
 void KAPI * kmalloc(u64 size, memory_tag_enum tag);
 void KAPI kfree(void * ptr, u64 size, memory_tag_enum tag);
