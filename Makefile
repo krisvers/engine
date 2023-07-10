@@ -14,6 +14,10 @@ clean-engine:
 	@echo "> Cleaning engine"
 	@make clean -C engine/ --no-print-directory
 
+debug-engine-win:
+	@echo "> Building engine debug for Windows x64"
+	@make debug-win -C engine/ --no-print-directory
+
 build-testbed:
 	@echo "> Building testbed for $(OS)"
 	@make build -C engine/testbed/ --no-print-directory
@@ -21,6 +25,10 @@ build-testbed:
 debug-testbed:
 	@echo "> Building testbed debug for $(OS)"
 	@make debug -C engine/testbed/ --no-print-directory
+
+debug-testbed-win:
+	@echo "> Building testbed debug for Windows x64"
+	@make debug-win -C engine/testbed/ --no-print-directory
 
 clean-testbed:
 	@echo "> Cleaning testbed"
@@ -53,6 +61,7 @@ install-engine:
 win: build-engine-win build-testbed-win
 mac: build-engine-mac
 debug: debug-engine debug-testbed
+debug-win: debug-engine-win debug-testbed-win
 clean: clean-engine clean-testbed
 run: run-testbed
 run-win: run-testbed-win

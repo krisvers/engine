@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <core/input.h>
 #include <core/logger.h>
+#include <containers/dynarray.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -144,6 +145,13 @@ void platform_sleep(u64 ms) {
 	select(0, NULL, NULL, NULL, &tv);
 }
 
+void platform_get_required_extension_names(dynarray_t ** array) {
+	u32 glfw_max_extensions;
+	const char ** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_max_extensions);
+	dynarray_merge_array(*array, glfw_extensions, glfw_max_extensions);
+}
+
+/* glfw specific stuff */
 static void glfw_error_handler(int error, const char * desc) {
 	KERROR("GLFW error: %i, \"%s\"", error, desc);
 }

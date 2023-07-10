@@ -66,4 +66,18 @@ dynarray_t KAPI * _dynarray_pop_at(dynarray_t * array, u64 index, void * dst);
 #define dynarray_clear(array) \
 	_dynarray_field_set(array, DYNARRAY_LENGTH, 0)
 
+#define dynarray_merge(arra, arrb, type)					\
+	{														\
+		for (u64 i = 0; i < arrb->length; ++i) {			\
+			dynarray_push(arra, ((type *) arrb->array)[i]);	\
+		}													\
+	}
+
+#define dynarray_merge_array(arra, arrb, lenb)			\
+	{													\
+		for (__typeof__(lenb) i = 0; i < lenb; ++i) {	\
+			dynarray_push(arra, arrb[i]);				\
+		}												\
+	}
+
 #endif

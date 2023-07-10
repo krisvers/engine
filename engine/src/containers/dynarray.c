@@ -24,8 +24,9 @@ dynarray_t * _dynarray_resize(dynarray_t * array) {
 		(DYNARRAY_RESIZE_FACTOR * array->capacity),
 		array->stride
 	);
-	kmemcpy(tmp, array, 24 + array->length * array->stride);
+	kmemcpy(tmp->array, array->array, array->capacity * array->stride);
 
+	tmp->stride = array->stride;
 	tmp->length = array->length;
 	_dynarray_destroy(array);
 	return tmp;

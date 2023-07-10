@@ -9,11 +9,12 @@ BINNAME = libengine.so
 BIN = $(BINDIR)/$(BINNAME)
 
 WINCC = x86_64-w64-mingw32-gcc
-WINLIBS = -Lwinlib -lglfw3 -lgdi32 -lkernel32
-WINFLAGS = -std=c99 -Wall -Wextra -Wno-newline-eof -Wno-unused-parameter -Iinclude -Iwinclude -mwindows -Wl,-subsystem,windows -DKEXPORT -DKWINDOWS_DLL -DGLFW_DLL -shared
+WINLIBS = -Lwinlib -lglfw3 -lgdi32 -lkernel32 -lvulkan-1
+WINFLAGS = -std=c99 -Wall -Wextra -Wno-newline-eof -Wno-unused-parameter -Iinclude -Iwinclude -mwindows -Wl,-subsystem,windows -DKEXPORT -DKWINDOWS_DLL -DGLFW_DLL -shared -DVK_PROTOTYPES -DVK_USE_PLATFORM_WIN32_KHR
 WINBIN = $(BINDIR)/libengine.dll
+WINDEBUG = -DDEBUG_FLAG -D_DEBUG
 
-MACFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-gnu-pointer-arith -Wno-gnu-zero-variadic-macro-arguments -Imacinclude -Iinclude -shared -undefined dynamic_lookup -ferror-limit=1000 -DKEXPORT
+MACFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-newline-eof -Wno-unused-parameter -Wno-gnu-pointer-arith -Wno-gnu-zero-variadic-macro-arguments -Imacinclude -Iinclude -shared -undefined dynamic_lookup -ferror-limit=1000 -DKEXPORT
 MACLIBS = -Lmaclib -lglfw3 -framework Cocoa -framework IOKit
 MACBIN = $(BINDIR)/libengine.dylib
 
@@ -38,6 +39,9 @@ mac:
 
 win:
 	$(WINCC) $(WINFLAGS) $(WINLIBS) $(FILES) -o $(WINBIN)
+
+debug-win:
+	$(WINCC) $(WINDEBUG) $(WINFLAGS) $(WINLIBS) $(FILES) -o $(WINBIN)
 
 pkg: clean build
 	@rm -f $(PKGDIR)/engine-linux-$(VERSION).tar.gz

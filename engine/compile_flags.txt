@@ -1,0 +1,1 @@
+-std=c99 -Wall -Wextra -Wpedantic -Wno-newline-eof -Wno-unused-parameter -Wno-gnu-pointer-arith -Wno-gnu-zero-variadic-macro-arguments -Iinclude -fPIC -shared -DKEXPORT -DDEBUG_FLAG -g -lglfw -lvulkan

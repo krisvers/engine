@@ -6,6 +6,7 @@
 
 #include <GLFW/glfw3.h>
 #include <core/logger.h>
+#include <containers/dynarray.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -119,6 +120,12 @@ f64 platform_get_absolute_time(void) {
 
 void platform_sleep(u64 ms) {
 	// implement sleeping
+}
+
+void platform_get_required_extension_names(dynarray_t * array) {
+	u32 glfw_max_extensions = 16;
+	const char ** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_max_extensions);
+	dynarray_merge_array(array, glfw_extensions, glfw_max_extensions);
 }
 
 static void glfw_error_handler(int error, const char * desc) {
