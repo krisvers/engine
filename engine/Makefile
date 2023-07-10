@@ -1,6 +1,6 @@
 CC = clang
 LIBS = -lglfw -lvulkan
-FLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-gnu-pointer-arith -Wno-gnu-zero-variadic-macro-arguments -Iinclude -fPIC -shared -DKEXPORT # -ferror-limit=100
+FLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-newline-eof -Wno-unused-parameter -Wno-gnu-pointer-arith -Wno-gnu-zero-variadic-macro-arguments -Iinclude -fPIC -shared -DKEXPORT # -ferror-limit=100
 DEBUG = -DDEBUG_FLAG -g
 SRCDIR = ./src
 FILES = $(shell find $(SRCDIR) -type f -name "*.c")
@@ -10,7 +10,7 @@ BIN = $(BINDIR)/$(BINNAME)
 
 WINCC = x86_64-w64-mingw32-gcc
 WINLIBS = -Lwinlib -lglfw3 -lgdi32 -lkernel32
-WINFLAGS = -std=c99 -Wall -Wextra -Wno-unused-parameter -Iinclude -Iwinclude -mwindows -Wl,-subsystem,windows -DKEXPORT -DKWINDOWS_DLL -DGLFW_DLL -shared
+WINFLAGS = -std=c99 -Wall -Wextra -Wno-newline-eof -Wno-unused-parameter -Iinclude -Iwinclude -mwindows -Wl,-subsystem,windows -DKEXPORT -DKWINDOWS_DLL -DGLFW_DLL -shared
 WINBIN = $(BINDIR)/libengine.dll
 
 MACFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-gnu-pointer-arith -Wno-gnu-zero-variadic-macro-arguments -Imacinclude -Iinclude -shared -undefined dynamic_lookup -ferror-limit=1000 -DKEXPORT

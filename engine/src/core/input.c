@@ -66,7 +66,7 @@ typedef struct inputState {
 static b8 initialized = FALSE;
 static input_state_t state;
 
-static const char * input_key_strs[KEYCODE_MAX];
+static const char * input_key_strs[KEYCODE_MAX + 1];
 const char * input_get_key_cstr(keycodes_enum key) {
 	const char * str = input_key_strs[key];
 	if (str == NULL) {
@@ -76,7 +76,7 @@ const char * input_get_key_cstr(keycodes_enum key) {
 	return str;
 }
 
-static const char * input_mouse_button_strs[MOUSE_BUTTON_MAX];
+static const char * input_mouse_button_strs[MOUSE_BUTTON_MAX + 1];
 const char * input_get_mouse_button_cstr(mouse_buttons_enum mb) {
 	const char * str = input_mouse_button_strs[mb];
 	if (str == NULL) {
