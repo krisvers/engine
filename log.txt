@@ -1,0 +1,42 @@
+Log File Creation Time: Mon Jul 10 20:25:03 2023
+
+[FATAL]: test message 3.140000
+[ERROR]: test message 3.140000
+[WARN]: test message 3.140000
+[INFO]: test message 3.140000
+[DEBUG]: test message 3.140000
+[TRACE]: test message 3.140000
+[DEBUG]: [vulkan_renderer_backend_init(backend, application_name, pstate)]
+[DEBUG]: 3 required extensions:
+[DEBUG]: VK_KHR_surface
+[DEBUG]: VK_KHR_xcb_surface
+[DEBUG]: VK_EXT_debug_utils
+[DEBUG]: [vulkan_renderer_backend_init(backend, application_name, pstate)]
+[DEBUG]: vulkan validation layers enabled
+[DEBUG]: searching for layer: VK_LAYER_KHRONOS_validation
+[DEBUG]: found VK_LAYER_KHRONOS_validation
+[DEBUG]: found all required validation layers
+[DEBUG]: initializing Vulkan debugger
+[DEBUG]: initialized Vulkan debugger
+[INFO]: System memory usage:
+[INFO]:  UNKNOWN          0.00	  B
+[INFO]:  ARRAY            0.00	  B
+[INFO]:  DYNAMIC_ARRAY    4.89	KiB
+[INFO]:  DICTIONARY       0.00	  B
+[INFO]:  RING_QUEUE       0.00	  B
+[INFO]:  BST              0.00	  B
+[INFO]:  STRING           0.00	  B
+[INFO]:  APPLICATION      0.00	  B
+[INFO]:  JOB              0.00	  B
+[INFO]:  TEXTURE          0.00	  B
+[INFO]:  MATERIAL         0.00	  B
+[INFO]:  RENDERER         56.00	  B
+[INFO]:  GAME             4.00	  B
+[INFO]:  TRANSFORM        0.00	  B
+[INFO]:  ENTITY           0.00	  B
+[INFO]:  NODE             0.00	  B
+[INFO]:  SCENE            0.00	  B
+[INFO]: key press 160, KEYCODE_LSHIFT
+[INFO]: key press 166, KEYCODE_LSUPER
+[DEBUG]: deinitializing Vulkan debugger
+[DEBUG]: deinitialized Vulkan debugger

@@ -32,6 +32,7 @@ b8 application_create(game_t * instance) {
 
 	// init systems
 	log_init();
+	log_set_logfile("log.txt");
 	input_init();
 
 	// test

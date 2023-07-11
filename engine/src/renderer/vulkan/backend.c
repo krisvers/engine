@@ -10,6 +10,13 @@
 
 static vulkan_context_t context;
 
+VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
+	VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+	VkDebugUtilsMessageTypeFlagsEXT message_types,
+	const VkDebugUtilsMessengerCallbackDataEXT * callback_data,
+	void * user_data
+);
+
 b8 vulkan_renderer_backend_init(renderer_backend_t * backend, const char * application_name, platform_state_t * pstate) {
 	context.allocator = NULL;
 
@@ -80,11 +87,36 @@ b8 vulkan_renderer_backend_init(renderer_backend_t * backend, const char * appli
 
 	VK_CHECK_MSG(vkCreateInstance(&create_info, context.allocator, &context.instance), "failed to create vulkan instance");
 
+#if defined(DEBUG_FLAG)
+	KDEBUG("initializing Vulkan debugger");
+	u32 log_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+
+	VkDebugUtilsMessengerCreateInfoEXT debug_create_info = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+	debug_create_info.messageSeverity = log_severity;
+	debug_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+	debug_create_info.pfnUserCallback = vk_debug_callback;
+	debug_create_info.pUserData = NULL;
+
+	PFN_vkCreateDebugUtilsMessengerEXT func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(context.instance, "vkCreateDebugUtilsMessengerEXT");
+	KASSERT_MSG(func != NULL, "failed to create Vulkan debug messenger");
+	VK_CHECK(func(context.instance, &debug_create_info, context.allocator, &context.debug_messenger));
+	KDEBUG("initialized Vulkan debugger");
+#endif
+
 	return TRUE;
 }
 
 void vulkan_renderer_backend_deinit(renderer_backend_t * backend) {
-	
+#if defined(DEBUG_FLAG)
+	KDEBUG("deinitializing Vulkan debugger");
+
+	PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(context.instance, "vkDestroyDebugUtilsMessengerEXT");
+	func(context.instance, context.debug_messenger, context.allocator);
+
+	KDEBUG("deinitialized Vulkan debugger");
+#endif
+
+	vkDestroyInstance(context.instance, context.allocator);
 }
 
 void vulkan_renderer_backend_on_resize(renderer_backend_t * backend, u32 w, u32 h) {
@@ -97,4 +129,28 @@ b8 vulkan_renderer_backend_frame_begin(renderer_backend_t * backend, f64 delta_t
 
 b8 vulkan_renderer_backend_frame_end(renderer_backend_t * backend, f64 delta_time) {
 	return TRUE;
+}
+
+VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
+	VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+	VkDebugUtilsMessageTypeFlagsEXT message_types,
+	const VkDebugUtilsMessengerCallbackDataEXT * callback_data,
+	void * user_data
+) {
+	switch (message_severity) {
+		default:
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+			KERROR("[VULKAN DEBUG]: %s", callback_data->pMessage);
+			break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+			KWARN("[VULKAN DEBUG]: %s", callback_data->pMessage);
+			break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+			KINFO("[VULKAN DEBUG]: %s", callback_data->pMessage);
+			break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+			KTRACE("[VULKAN DEBUG]: %s", callback_data->pMessage);
+			break;
+	}
+	return VK_FALSE;
 }
