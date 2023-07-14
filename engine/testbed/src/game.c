@@ -54,14 +54,14 @@ b8 game_update(game_t * instance, f64 delta_time) {
 	(void) instance;
 	(void) delta_time;
 
-	float base_speed = 0.75f;
-	float slow_speed = 0.1f;
-	float fast_speed = 4.0f;
+	float base_speed = 5.0f;
+	float slow_speed = 1.0f;
+	float fast_speed = 20.0f;
 	float speed = base_speed;
-	float base_sens = 5.0f;
-	float slow_sens = 1.0f;
+	float base_sens = 150.0f;
+	float slow_sens = 80.0f;
 	float sensitivity = base_sens;
-	float mouse_sens = 0.05f;
+	float mouse_sens = 15.0f;
 
 	vec3 forward;
 	transform_forward_yaw(&this->camera->transform, forward);
@@ -80,40 +80,40 @@ b8 game_update(game_t * instance, f64 delta_time) {
 		return TRUE;
 	}
 	if (input_get_key(KEYCODE_W)) {
-		vec3_add(this->camera->transform.position, this->camera->transform.position, (vec3) { forward[0] * speed, forward[1] * speed, forward[2] * speed });
+		vec3_add(this->camera->transform.position, this->camera->transform.position, (vec3) { forward[0] * speed * delta_time, forward[1] * speed * delta_time, forward[2] * speed * delta_time });
 	}
 	if (input_get_key(KEYCODE_S)) {
-		vec3_sub(this->camera->transform.position, this->camera->transform.position, (vec3) { forward[0] * speed, forward[1] * speed, forward[2] * speed });
+		vec3_sub(this->camera->transform.position, this->camera->transform.position, (vec3) { forward[0] * speed * delta_time, forward[1] * speed * delta_time, forward[2] * speed * delta_time });
 	}
 	if (input_get_key(KEYCODE_D)) {
-		vec3_add(this->camera->transform.position, this->camera->transform.position, (vec3) { right[0] * speed, right[1] * speed, right[2] * speed });
+		vec3_add(this->camera->transform.position, this->camera->transform.position, (vec3) { right[0] * speed * delta_time, right[1] * speed * delta_time, right[2] * speed * delta_time });
 	}
 	if (input_get_key(KEYCODE_A)) {
-		vec3_sub(this->camera->transform.position, this->camera->transform.position, (vec3) { right[0] * speed, right[1] * speed, right[2] * speed });
+		vec3_sub(this->camera->transform.position, this->camera->transform.position, (vec3) { right[0] * speed * delta_time, right[1] * speed * delta_time, right[2] * speed * delta_time });
 	}
 	if (input_get_key(KEYCODE_E)) {
-		vec3_add(this->camera->transform.position, this->camera->transform.position, (vec3) { this->camera->transform.up[0] * speed, this->camera->transform.up[1] * speed, this->camera->transform.up[2] * speed });
+		vec3_add(this->camera->transform.position, this->camera->transform.position, (vec3) { this->camera->transform.up[0] * speed * delta_time, this->camera->transform.up[1] * speed * delta_time, this->camera->transform.up[2] * speed * delta_time });
 	}
 	if (input_get_key(KEYCODE_Q)) {
-		vec3_sub(this->camera->transform.position, this->camera->transform.position, (vec3) { this->camera->transform.up[0] * speed, this->camera->transform.up[1] * speed, this->camera->transform.up[2] * speed });
+		vec3_sub(this->camera->transform.position, this->camera->transform.position, (vec3) { this->camera->transform.up[0] * speed * delta_time, this->camera->transform.up[1] * speed * delta_time, this->camera->transform.up[2] * speed * delta_time });
 	}
 	if (input_get_key(KEYCODE_RIGHT)) {
-		this->camera->transform.rotation[1] += sensitivity;
+		this->camera->transform.rotation[1] += sensitivity * delta_time;
 	}
 	if (input_get_key(KEYCODE_LEFT)) {
-		this->camera->transform.rotation[1] -= sensitivity;
+		this->camera->transform.rotation[1] -= sensitivity * delta_time;
 	}
 	if (input_get_key(KEYCODE_UP)) {
-		this->camera->transform.rotation[0] += sensitivity;
+		this->camera->transform.rotation[0] += sensitivity * delta_time;
 	}
 	if (input_get_key(KEYCODE_DOWN)) {
-		this->camera->transform.rotation[0] -= sensitivity;
+		this->camera->transform.rotation[0] -= sensitivity * delta_time;
 	}
 
 	i16 mouse[2];
 	input_get_mouse_delta(&mouse[0], &mouse[1]);
-	//this->camera->transform.rotation[0] += -mouse[1] * mouse_sens;
-	//this->camera->transform.rotation[1] += mouse[0] * mouse_sens;
+	this->camera->transform.rotation[0] += -mouse[1] * mouse_sens * delta_time;
+	this->camera->transform.rotation[1] += mouse[0] * mouse_sens * delta_time;
 
 	if (this->camera->transform.rotation[0] > 85) {
 		this->camera->transform.rotation[0] = 85;
