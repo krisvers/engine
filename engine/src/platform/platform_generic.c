@@ -152,7 +152,7 @@ void platform_console_write_error(const char * message, u8 color) {
 }
 
 f64 platform_get_absolute_time(void) {
-	// implement time stuff
+	return glfwGetTime();
 }
 
 void platform_sleep(u64 ms) {

@@ -1,4 +1,5 @@
 #include <core/clock.h>
+#include <core/logger.h>
 #include <platform/platform.h>
 
 void clock_update(clock_t * clock) {
