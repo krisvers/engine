@@ -3,6 +3,16 @@
 
 #if KPLATFORM_LINUX
 
+#ifdef KPLATFORM_VULKAN
+#include <renderer/vulkan/vulkan_types.h>
+#include <vulkan/vulkan.h>
+#define GLFW_INCLUDE_VULKAN
+#endif
+#ifdef KPLATFORM_OPENGL
+#include <renderer/opengl/opengl_types.h>
+#include <glad/glad.h>
+#endif
+#include <renderer/frontend.h>
 #include <GLFW/glfw3.h>
 #include <core/input.h>
 #include <core/logger.h>
@@ -22,9 +32,13 @@ static void glfw_mouse_pos_handler(GLFWwindow * window, f64 x, f64 y);
 static void glfw_mouse_button_handler(GLFWwindow * window, int button, int action, int mods);
 static void glfw_mouse_scroll_handler(GLFWwindow * window, double dx, double dy);
 static void glfw_window_close_handler(GLFWwindow * window);
+static void glfw_window_resize_handler(GLFWwindow * window, int w, int h);
 
 typedef struct internalState {
 	GLFWwindow * glfw_win;
+#ifdef KPLATFORM_VULKAN
+	VkSurfaceKHR surface;
+#endif
 } internal_state_t;
 
 static internal_state_t * current_state;
@@ -46,12 +60,21 @@ b8 platform_startup(
 		return FALSE;
 	}
 
+	#ifdef KPLATFORM_VULKAN
 	if (!glfwVulkanSupported()) {
 		KFATAL("GLFW does not support vulkan");
 		glfwTerminate();
 		return FALSE;
 	}
-
+	#endif
+	#ifndef KPLATFORM_OPENGL
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	#else
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	#endif
 	state->glfw_win = glfwCreateWindow(w, h, app_name, NULL, NULL);
 	if (state->glfw_win == NULL) {
 		KFATAL("GLFW failed to create window");
@@ -59,12 +82,24 @@ b8 platform_startup(
 		return FALSE;
 	}
 
+	glfwMakeContextCurrent(state->glfw_win);
+	#ifdef KPLATFORM_OPENGL
+	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+		KFATAL("failed to load OpenGL with GLAD");
+		glfwDestroyWindow(state->glfw_win);
+		glfwTerminate();
+		return FALSE;
+	}
+
+	glViewport(0, 0, w, h);
+	#endif
 	glfwSetWindowPos(state->glfw_win, x, y);
 	glfwSetKeyCallback(state->glfw_win, glfw_key_handler);
 	glfwSetCursorPosCallback(state->glfw_win, glfw_mouse_pos_handler);
 	glfwSetMouseButtonCallback(state->glfw_win, glfw_mouse_button_handler);
 	glfwSetScrollCallback(state->glfw_win, glfw_mouse_scroll_handler);
 	glfwSetWindowCloseCallback(state->glfw_win, glfw_window_close_handler);
+	glfwSetFramebufferSizeCallback(state->glfw_win, glfw_window_resize_handler);
 
 	gettimeofday(&start_time, 0);
 
@@ -86,9 +121,18 @@ b8 platform_pump_messages(platform_state_t * platform_state) {
 	if (state->glfw_win == NULL) {
 		return FALSE;
 	}
-
 	glfwPollEvents();
+	if (state->glfw_win == NULL) {
+		return FALSE;
+	}
 	return TRUE;
+}
+
+void platform_swap_buffers(platform_state_t * platform_state) {
+	internal_state_t * state = (internal_state_t *) platform_state->internal_state;
+	if (state->glfw_win != NULL) {
+		glfwSwapBuffers(state->glfw_win);
+	}
 }
 
 void * platform_malloc(u64 size, b8 aligned) {
@@ -145,11 +189,25 @@ void platform_sleep(u64 ms) {
 	select(0, NULL, NULL, NULL, &tv);
 }
 
+#ifdef KPLATFORM_VULKAN
 void platform_get_required_extension_names(dynarray_t ** array) {
 	u32 glfw_max_extensions;
 	const char ** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_max_extensions);
 	dynarray_merge_array(*array, glfw_extensions, glfw_max_extensions);
 }
+
+b8 platform_create_vulkan_surface(platform_state_t * pstate, vulkan_context_t * context) {
+	internal_state_t * state = (internal_state_t *) pstate->internal_state;
+	VkResult ret = glfwCreateWindowSurface(context->instance, state->glfw_win, context->allocator, &state->surface);
+	if (ret != VK_SUCCESS) {
+		KFATAL("[platform_create_vulkan_surface(pstate, context)]");
+		KFATAL("failed to create window surface using GLFW");
+		return FALSE;
+	}
+	context->surface = state->surface;
+	return TRUE;
+}
+#endif
 
 /* glfw specific stuff */
 static void glfw_error_handler(int error, const char * desc) {
@@ -331,6 +389,10 @@ static void glfw_window_close_handler(GLFWwindow * window) {
 	//KLOG("window %p is being closed", (void *) window);
 	glfwDestroyWindow(window);
 	current_state->glfw_win = NULL;
+}
+
+static void glfw_window_resize_handler(GLFWwindow * window, int w, int h) {
+	renderer_on_resize(w, h);
 }
 
 #endif

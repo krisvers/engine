@@ -1,7 +1,12 @@
+#include <defines.h>
+
+#ifdef KPLATFORM_VULKAN
+
 #include <renderer/vulkan/backend.h>
 #include <renderer/renderer_types.h>
 #include <platform/platform.h>
 #include <renderer/vulkan/platform.h>
+#include <renderer/vulkan/device.h>
 #include <renderer/vulkan/vulkan_types.h>
 #include <vulkan/vulkan.h>
 #include <core/logger.h>
@@ -53,12 +58,14 @@ b8 vulkan_renderer_backend_init(renderer_backend_t * backend, const char * appli
 	KDEBUG("[vulkan_renderer_backend_init(backend, application_name, pstate)]");
 	KDEBUG("vulkan validation layers enabled");
 
+	// dynarray_t<const char *>
 	required_val_layer_names = dynarray_create(const char *);
 	dynarray_push(required_val_layer_names, &"VK_LAYER_KHRONOS_validation");
 	required_val_layer_count = required_val_layer_names->length;
 
 	u32 available_count = 0;
 	VK_CHECK(vkEnumerateInstanceLayerProperties(&available_count, NULL));
+	// dynarray_t<VkLayerProperties>
 	dynarray_t * available_layers = dynarray_reserve(VkLayerProperties, available_count);
 	VK_CHECK(vkEnumerateInstanceLayerProperties(&available_count, available_layers->array));
 
@@ -103,10 +110,25 @@ b8 vulkan_renderer_backend_init(renderer_backend_t * backend, const char * appli
 	KDEBUG("initialized Vulkan debugger");
 #endif
 
+	if (!platform_create_vulkan_surface(pstate, &context)) {
+		KFATAL("[vulkan_renderer_backend_init(backend, application_name, pstate)]");
+		KFATAL("failed to create Vulkan surface");
+		return FALSE;
+	}
+
+	if (!vulkan_device_create(&context)) {
+		KFATAL("[vulkan_renderer_backend_init(backend, application_name, pstate)]");
+		KFATAL("failed to create Vulkan device");
+		return FALSE;
+	}
+
 	return TRUE;
 }
 
 void vulkan_renderer_backend_deinit(renderer_backend_t * backend) {
+	vulkan_device_destroy(&context);
+	vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
+
 #if defined(DEBUG_FLAG)
 	KDEBUG("deinitializing Vulkan debugger");
 
@@ -154,3 +176,4 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
 	}
 	return VK_FALSE;
 }
+#endif

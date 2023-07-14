@@ -69,4 +69,6 @@ typedef void * vptr;
 	#endif
 #endif
 
+#define KPLATFORM_OPENGL 1
+
 #endif

@@ -3,11 +3,13 @@
 
 #include <defines.h>
 #include <platform/platform.h>
+#include <containers/camera.h>
 
 typedef enum rendererBackendsEnum {
     RENDERER_BACKEND_VULKAN,
     RENDERER_BACKEND_OPENGL,
     RENDERER_BACKEND_DIRECTX,
+    RENDERER_BACKEND_SOFTWARE,
 } renderer_backends_enum;
 
 typedef struct rendererBackend {
@@ -18,6 +20,7 @@ typedef struct rendererBackend {
     void (* resize)(struct rendererBackend * backend, u32 w, u32 h);
     b8 (* frame_begin)(struct rendererBackend * backend, f64 delta_time);
     b8 (* frame_end)(struct rendererBackend * backend, f64 delta_time);
+    camera_t * camera;
 } renderer_backend_t;
 
 typedef b8 (* renderer_init_func)(renderer_backend_t * backend, const char * application_name, platform_state_t * pstate);

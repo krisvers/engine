@@ -4,6 +4,15 @@
 /*
 #if KPLATFORM_[PLATFORM]
 
+#ifdef KPLATFORM_VULKAN
+#include <renderer/vulkan/vulkan_types.h>
+#include <vulkan/vulkan.h>
+#define GLFW_INCLUDE_VULKAN
+#endif
+#ifdef KPLATFORM_OPENGL
+#include <renderer/opengl/opengl_types.h>
+#include <glad/glad.h>
+#endif
 #include <GLFW/glfw3.h>
 #include <core/logger.h>
 #include <containers/dynarray.h>
@@ -47,6 +56,15 @@ b8 platform_startup(
 		return FALSE;
 	}
 
+	#endif
+	#ifndef KPLATFORM_OPENGL
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	#else
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	#endif
 	state->glfw_win = glfwCreateWindow(w, h, app_name, NULL, NULL);
 	if (state->glfw_win == NULL) {
 		KFATAL("GLFW failed to create window");
@@ -54,6 +72,17 @@ b8 platform_startup(
 		return FALSE;
 	}
 
+	glfwMakeContextCurrent(state->glfw_win);
+	#ifdef KPLATFORM_OPENGL
+	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+		KFATAL("failed to load OpenGL with GLAD");
+		glfwDestroyWindow(state->glfw_win);
+		glfwTerminate();
+		return FALSE;
+	}
+
+	glViewport(0, 0, w, h);
+	#endif
 	glfwSetWindowPos(state->glfw_win, x, y);
 	glfwSetKeyCallback(state->glfw_win, glfw_key_handler);
 	glfwSetCursorPosCallback(state->glfw_win, glfw_mouse_pos_handler);
@@ -84,6 +113,11 @@ b8 platform_pump_messages(platform_state_t * platform_state) {
 
 	glfwPollEvents();
 	return TRUE;
+}
+
+void platform_swap_buffers(platform_state_t * platform_state) {
+	internal_state_t * state = (internal_state_t *) platform_state->internal_state;
+	glfwSwapBuffers(state->glfw_win);
 }
 
 void * platform_malloc(u64 size, b8 aligned) {

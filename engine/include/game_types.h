@@ -2,6 +2,7 @@
 #define KENGINE_GAME_TYPE_H
 
 #include <core/application_config.h>
+#include <containers/camera.h>
 
 typedef struct game {
 	application_config_t app_config;
@@ -10,6 +11,7 @@ typedef struct game {
 	b8 (* render)(struct game * instance, f64 delta_time);
 	void * state;
 	u16 update_frequency;
+	camera_t * camera;
 } game_t;
 
 typedef b8 (* game_initialize_func)(game_t * instance);

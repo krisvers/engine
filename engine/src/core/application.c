@@ -6,6 +6,7 @@
 #include <core/clock.h>
 #include <platform/platform.h>
 #include <renderer/frontend.h>
+#include <containers/camera.h>
 
 typedef struct applicationState {
 	game_t * game_instance;
@@ -16,6 +17,7 @@ typedef struct applicationState {
 	u16 h;
 	clock_t clock;
 	f64 last_time;
+	camera_t * camera;
 } application_state_t;
 
 static b8 initialized = FALSE;
@@ -29,6 +31,7 @@ b8 application_create(game_t * instance) {
 	}
 
 	app_state.game_instance = instance;
+	app_state.camera = instance->camera;
 
 	// init systems
 	log_init();
@@ -74,6 +77,8 @@ b8 application_create(game_t * instance) {
 		KFATAL("Game failed to initialize");
 		return FALSE;
 	}
+
+	renderer_set_camera(app_state.camera);
 
 	initialized = TRUE;
 	return TRUE;
@@ -128,7 +133,10 @@ b8 application_run(void) {
 		// refactor this!!
 		render_packet_t packet;
 		packet.delta_time = delta;
-		renderer_draw_frame(&packet);
+		if (!renderer_draw_frame(&packet)) {
+		}
+
+		platform_swap_buffers(&app_state.platform);
 
 		f64 frame_end = platform_get_absolute_time();
 		f64 frame_elapsed = frame_end - frame_start;

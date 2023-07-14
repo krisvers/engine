@@ -23,6 +23,7 @@ static const char * memory_tag_strings[MEMORY_TAG_MAX] = {
 	"ENTITY       ",
 	"NODE         ",
 	"SCENE        ",
+	"CAMERA       ",
 };
 
 typedef struct memoryStats {

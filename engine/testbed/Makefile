@@ -1,6 +1,6 @@
 CC = clang
-LIBS = -L../bin -lglfw -lvulkan -lengine
-FLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -Iinclude -I../include -DKIMPORT -fPIC -g -Wl,-rpath,.
+LIBS = -L../bin -lglfw -lGL -lengine -lm
+FLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-newline-eof -Wno-gnu-zero-variadic-macro-arguments -Iinclude -I../include -DKIMPORT -fPIC -g -Wl,-rpath,. -Wno-unused-parameter
 DEBUG = -DDEBUG_FLAG
 SRCDIR = ./src
 FILES = $(shell find $(SRCDIR) -type f -name "*.c")
@@ -8,13 +8,13 @@ BINDIR = ./bin
 BIN = $(BINDIR)/testbed
 
 WINCC = x86_64-w64-mingw32-gcc
-WINLIBS = -L../bin -L../winlib -lengine
-WINFLAGS = -std=c99 -Wall -Wextra -Wno-unused-parameter -Iinclude -I../include -mwindows -Wl,-subsystem,windows -DKIMPORT -fPIC -g -Wl,-rpath,.
+WINLIBS = -L../bin -L../winlib -lengine -lm
+WINFLAGS = -std=c99 -Wall -Wextra -Wno-unused-parameter -Iinclude -I../include -mwindows -Wl,-subsystem,windows -DKIMPORT -fPIC -g -Wl,-rpath,. -Wno-unused-parameter
 WINBIN = $(BINDIR)/testbed.exe
 WINDEBUG = -DDEBUG_FLAG -D_DEBUG
 
-MACLIBS = -L../bin -L../maclib -lengine -lglfw3
-MACFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -Iinclude -I../include -DKIMPORT -shared -undefined dynamic_lookup
+MACLIBS = -L../bin -L../maclib -lengine -lglfw3 -lm
+MACFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -Iinclude -I../include -DKIMPORT -shared -undefined dynamic_lookup -Wno-unused-parameter
 MACBIN = $(BINDIR)/testbed.dylib
 
 .PHONY = clean build

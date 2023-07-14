@@ -3,13 +3,6 @@
 
 #include <defines.h>
 
-enum {
-	DYNARRAY_CAPACITY,
-	DYNARRAY_LENGTH,
-	DYNARRAY_STRIDE,
-	DYNARRAY_FIELD_LENGTH
-};
-
 typedef struct dynArray {
 	u64 capacity;
 	u64 length;
