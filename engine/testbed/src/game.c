@@ -75,6 +75,10 @@ b8 game_update(game_t * instance, f64 delta_time) {
 	if (input_get_key(KEYCODE_LSHIFT)) {
 		speed = fast_speed;
 	}
+	if (input_get_key(KEYCODE_BACKSPACE)) {
+		instance->running = FALSE;
+		return TRUE;
+	}
 	if (input_get_key(KEYCODE_W)) {
 		vec3_add(this->camera->transform.position, this->camera->transform.position, (vec3) { forward[0] * speed, forward[1] * speed, forward[2] * speed });
 	}
@@ -108,8 +112,8 @@ b8 game_update(game_t * instance, f64 delta_time) {
 
 	i16 mouse[2];
 	input_get_mouse_delta(&mouse[0], &mouse[1]);
-	this->camera->transform.rotation[0] += -mouse[1] * mouse_sens;
-	this->camera->transform.rotation[1] += mouse[0] * mouse_sens;
+	//this->camera->transform.rotation[0] += -mouse[1] * mouse_sens;
+	//this->camera->transform.rotation[1] += mouse[0] * mouse_sens;
 
 	if (this->camera->transform.rotation[0] > 85) {
 		this->camera->transform.rotation[0] = 85;

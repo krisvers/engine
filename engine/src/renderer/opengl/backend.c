@@ -87,14 +87,14 @@ u64 shader_source_frag_size = 0;
 #define SHADER_FRAGMENT_FILE "./rsrc/fragment.glsl"
 
 static b8 opengl_load_shaders(void) {
-	FILE * vertfp = fopen(SHADER_VERTEX_FILE, "r");
+	FILE * vertfp = fopen(SHADER_VERTEX_FILE, "rb");
 	if (vertfp == NULL) {
 		KERROR("[open_load_shaders()]");
 		KERROR("failed to open vertex shader %s", SHADER_VERTEX_FILE);
 		return FALSE;
 	}
 
-	FILE * fragfp = fopen(SHADER_FRAGMENT_FILE, "r");
+	FILE * fragfp = fopen(SHADER_FRAGMENT_FILE, "rb");
 	if (fragfp == NULL) {
 		KERROR("[open_load_shaders()]");
 		KERROR("failed to open fragment shader %s", SHADER_FRAGMENT_FILE);
@@ -123,8 +123,8 @@ static b8 opengl_load_shaders(void) {
 		KERROR("failure while reading fragment shader from %s", SHADER_FRAGMENT_FILE);
 		return FALSE;
 	}
-	shader_source_vert[vertlen] = '\0';
-	shader_source_frag[fraglen] = '\0';
+	shader_source_vert[shader_source_vert_size - 1] = '\0';
+	shader_source_frag[shader_source_frag_size - 1] = '\0';
 
 	shader_source_vert_size = vertlen + 1;
 	shader_source_frag_size = fraglen + 1;
@@ -220,7 +220,7 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.ind_num * sizeof(u32), mesh.indices, GL_STATIC_DRAW);
 	
 	glVertexAttribPointer(0, VERTEX_POSITION_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), VERTEX_POSITION_OFFSET);
-	glVertexAttribPointer(1, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), VERTEX_COLOR_OFFSET);
+	glVertexAttribPointer(1, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const void *) VERTEX_COLOR_OFFSET);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
@@ -228,8 +228,7 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 	glFrontFace(GL_CW);
 	glEnable(GL_CULL_FACE);
 
-	context.matrix = glGetUniformLocation(context.shader, "in_mvp");
-
+	context.mvp = glGetUniformLocation(context.shader, "in_mvp");
 	return TRUE;
 }
 
@@ -251,26 +250,26 @@ b8 opengl_renderer_backend_frame_begin(renderer_backend_t * backend, f64 delta_t
 		return TRUE;
 	}
 
-	mat4x4 m, v, p;
+	mat4x4 m, v, p, mvp;
 	mat4x4_identity(m);
 	mat4x4_identity(v);
 	mat4x4_identity(p);
-	mat4x4_identity(context.mvp);
+	mat4x4_identity(mvp);
 
-	mat4x4_translate(m, position[0], position[1], position[2]);
 	mat4x4_scale_aniso(m, m, scale[0], scale[1], scale[2]);
 	mat4x4_rotate_X(m, m, rotation[0] * (3.141592f / 180.0f));
 	mat4x4_rotate_Y(m, m, rotation[1] * (3.141592f / 180.0f));
 	mat4x4_rotate_Z(m, m, rotation[2] * (3.141592f / 180.0f));
+	mat4x4_translate(m, position[0], position[1], position[2]);
 
 	camera_view_matrix(backend->camera, v);
-
 	camera_perspective_matrix(backend->camera, p);
 
-	mat4x4_mul(context.mvp, p, v);
-	mat4x4_mul(context.mvp, context.mvp, m);
-	
-	glUniformMatrix4fv(context.matrix, 1, GL_FALSE, &context.mvp[0][0]);
+	mat4x4_mul(mvp, mvp, p);
+	mat4x4_mul(mvp, mvp, v);
+	mat4x4_mul(mvp, mvp, m);
+
+	glUniformMatrix4fv(context.mvp, 1, GL_FALSE, &mvp[0][0]);
 	return TRUE;
 }
 
@@ -281,12 +280,9 @@ b8 opengl_renderer_backend_frame_end(renderer_backend_t * backend, f64 delta_tim
 		return FALSE;
 	}
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.11, 0.13, 0.12, 1.0);
+	glClearColor(0.12, 0.07, 0.12, 1.0);
 	glUseProgram(context.shader);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, context.ebo);
 	glDrawElements(GL_TRIANGLES, INDICES_NUM, GL_UNSIGNED_INT, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	//glDrawArrays(GL_TRIANGLES, 0, 6);
 	return TRUE;
 }
 

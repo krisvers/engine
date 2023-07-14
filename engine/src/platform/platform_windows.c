@@ -32,6 +32,7 @@ static void glfw_mouse_pos_handler(GLFWwindow * window, f64 x, f64 y);
 static void glfw_mouse_button_handler(GLFWwindow * window, int button, int action, int mods);
 static void glfw_mouse_scroll_handler(GLFWwindow * window, double dx, double dy);
 static void glfw_window_close_handler(GLFWwindow * window);
+static void glfw_window_resize_handler(GLFWwindow * window, int w, int h);
 
 typedef struct internalState {
 	GLFWwindow * glfw_win;
@@ -98,6 +99,7 @@ b8 platform_startup(
 	glfwSetMouseButtonCallback(state->glfw_win, glfw_mouse_button_handler);
 	glfwSetScrollCallback(state->glfw_win, glfw_mouse_scroll_handler);
 	glfwSetWindowCloseCallback(state->glfw_win, glfw_window_close_handler);
+	glfwSetFramebufferSizeCallback(state->glfw_win, glfw_window_resize_handler);
 
 	LARGE_INTEGER frequency;
 	QueryPerformanceFrequency(&frequency);
@@ -121,11 +123,13 @@ void platform_shutdown(platform_state_t * platform_state) {
 b8 platform_pump_messages(platform_state_t * platform_state) {
 	internal_state_t * state = (internal_state_t *) platform_state->internal_state;
 
-	if (!state->running || state->glfw_win == NULL) {
+	if (state->glfw_win == NULL) {
 		return FALSE;
 	}
-
 	glfwPollEvents();
+	if (state->glfw_win == NULL) {
+		return FALSE;
+	}
 	return TRUE;
 }
 
@@ -404,6 +408,10 @@ static void glfw_window_close_handler(GLFWwindow * window) {
 	//KLOG("window %p is being closed", (void *) window);
 	glfwDestroyWindow(window);
 	current_state->glfw_win = NULL;
+}
+
+static void glfw_window_resize_handler(GLFWwindow * window, int w, int h) {
+	renderer_on_resize(w, h);
 }
 
 #endif

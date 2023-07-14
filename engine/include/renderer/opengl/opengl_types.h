@@ -13,8 +13,7 @@ typedef struct openglContext {
 	GLuint shader;
 	GLuint shader_vertex;
 	GLuint shader_fragment;
-	GLint matrix;
-	mat4x4 mvp;
+	GLint mvp;
 } opengl_context_t;
 
 #endif

@@ -1,4 +1,4 @@
-Log File Creation Time: Thu Jul 13 23:57:43 2023
+Log File Creation Time: Fri Jul 14 17:21:09 2023
 
 [FATAL]: test message 3.140000
 [ERROR]: test message 3.140000
@@ -25,8 +25,27 @@ Log File Creation Time: Thu Jul 13 23:57:43 2023
 [INFO]:  NODE             0.00	  B
 [INFO]:  SCENE            0.00	  B
 [INFO]:  CAMERA           72.00	  B
-[INFO]: mouse move 740, 927
+[INFO]: key press 150, KEYCODE_UP
+[INFO]: key press 151, KEYCODE_DOWN
+[INFO]: key press 69, KEYCODE_E
+[INFO]: key press 162, KEYCODE_LCONTROL
+[INFO]: key press 68, KEYCODE_D
+[INFO]: key press 87, KEYCODE_W
 [INFO]: key press 149, KEYCODE_LEFT
+[INFO]: key press 81, KEYCODE_Q
+[INFO]: key press 151, KEYCODE_DOWN
+[INFO]: key press 149, KEYCODE_LEFT
+[INFO]: key press 150, KEYCODE_UP
+[INFO]: key press 87, KEYCODE_W
+[INFO]: key press 68, KEYCODE_D
 [INFO]: key press 148, KEYCODE_RIGHT
-[INFO]: key press 166, KEYCODE_LSUPER
-[INFO]: key press 160, KEYCODE_LSHIFT
+[INFO]: key press 151, KEYCODE_DOWN
+[INFO]: key press 81, KEYCODE_Q
+[INFO]: key press 150, KEYCODE_UP
+[INFO]: key press 83, KEYCODE_S
+[INFO]: key press 150, KEYCODE_UP
+[INFO]: key press 81, KEYCODE_Q
+[INFO]: key press 69, KEYCODE_E
+[INFO]: key press 8, KEYCODE_BACKSPACE
+[DEBUG]: [application_run()]
+[DEBUG]: closing game

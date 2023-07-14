@@ -12,6 +12,7 @@ typedef struct game {
 	void * state;
 	u16 update_frequency;
 	camera_t * camera;
+	b8 running;
 } game_t;
 
 typedef b8 (* game_initialize_func)(game_t * instance);

@@ -32,10 +32,13 @@ b8 application_create(game_t * instance) {
 
 	app_state.game_instance = instance;
 	app_state.camera = instance->camera;
+	instance->running = TRUE;
 
 	// init systems
 	log_init();
+	#ifdef DEBUG_FLAG
 	log_set_logfile("log.txt");
+	#endif
 	input_init();
 
 	// test
@@ -123,6 +126,13 @@ b8 application_run(void) {
 			break;
 		}
 
+		if (!app_state.game_instance->running) {
+			KDEBUG("[application_run()]");
+			KDEBUG("closing game");
+			app_state.running = FALSE;
+			break;
+		}
+
 		if (!app_state.game_instance->render(app_state.game_instance, delta)) {
 			KFATAL("[application_run()]");
 			KFATAL("Game render failed!");
@@ -159,6 +169,7 @@ b8 application_run(void) {
 		app_state.last_time = current_time;
 	}
 
+	log_unset_logfile();
 	app_state.running = FALSE;
 	event_deinit();
 	input_deinit();
