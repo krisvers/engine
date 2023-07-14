@@ -130,9 +130,10 @@ b8 platform_pump_messages(platform_state_t * platform_state) {
 
 void platform_swap_buffers(platform_state_t * platform_state) {
 	internal_state_t * state = (internal_state_t *) platform_state->internal_state;
-	if (state->glfw_win != NULL) {
-		glfwSwapBuffers(state->glfw_win);
+	if (state->glfw_win == NULL) {
+		return;
 	}
+	glfwSwapBuffers(state->glfw_win);
 }
 
 void * platform_malloc(u64 size, b8 aligned) {
@@ -187,6 +188,21 @@ void platform_sleep(u64 ms) {
 	tv.tv_sec = ms / 1000;
 	tv.tv_usec = (ms % 1000) * 1000;
 	select(0, NULL, NULL, NULL, &tv);
+}
+
+void platform_set_cursor(u8 value) {
+	switch (value) {
+		default:
+		case 0:
+			glfwSetInputMode(current_state->glfw_win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			return;
+		case 1:
+			glfwSetInputMode(current_state->glfw_win, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+			return;
+		case 2:
+			glfwSetInputMode(current_state->glfw_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			return;
+	}
 }
 
 #ifdef KPLATFORM_VULKAN

@@ -21,15 +21,57 @@ typedef struct vertex {
 	vec3 color;
 } vertex_t;
 
-float vertices[] = {
-	1, 1, 0, 1, 1, 0,
-	1, 0, 0, 0, 1, 1,
-	0, 1, 0, 1, 0, 1,
+typedef struct mesh {
+	u32 vert_num;
+	vertex_t * vertices;
+	u32 ind_num;
+	u32 * indices;
+} mesh_t;
+
+#define VERTEX_POSITION_OFFSET ((const void *) 0)
+#define VERTEX_POSITION_BYTE_SIZE (sizeof(vec3))
+#define VERTEX_POSITION_SIZE (VERTEX_POSITION_BYTE_SIZE / sizeof(float))
+#define VERTEX_COLOR_OFFSET (VERTEX_POSITION_OFFSET + VERTEX_POSITION_BYTE_SIZE)
+#define VERTEX_COLOR_BYTE_SIZE (sizeof(vec3))
+#define VERTEX_COLOR_SIZE (VERTEX_COLOR_BYTE_SIZE / sizeof(float))
+
+#define VERTICES_NUM 8
+vertex_t vertices[VERTICES_NUM] = {
+	{ { 0, 0, 0 }, { 0, 0, 0 } },
+	{ { 0, 1, 0 }, { 1, 0.3, 0 } },
+	{ { 1, 0, 0 }, { 0, 1, 0.3 } },
+	{ { 1, 1, 0 }, { 0.3, 0, 1 } },
+	{ { 0, 0, -1 }, { 1, 1, 1 } },
+	{ { 0, 1, -1 }, { 1, 0, 1 } },
+	{ { 1, 0, -1 }, { 0, 1, 1 } },
+	{ { 1, 1, -1 }, { 1, 1, 0 } },
 };
 
-u32 indices[] = {
+#define INDICES_NUM 36
+u32 indices[INDICES_NUM] = {
+	// back
 	0, 1, 2,
-	3, 4, 5
+	2, 1, 3,
+
+	// front
+	4, 6, 5,
+	6, 7, 5,
+
+	// bottom
+	0, 2, 6,
+	0, 6, 4,
+
+	// top
+	1, 5, 7,
+	1, 7, 3,
+
+	// left
+	4, 5, 1,
+	4, 1, 0,
+
+	// right
+	2, 3, 7,
+	2, 7, 6,
 };
 
 vec3 position = { 0.0f, 0.0f, -5.0f };
@@ -37,7 +79,9 @@ vec3 rotation = { 0, 0, 0 };
 vec3 scale = { 1, 1, 1 };
 
 char * shader_source_vert = NULL;
+u64 shader_source_vert_size = 0;
 char * shader_source_frag = NULL;
+u64 shader_source_frag_size = 0;
 
 #define SHADER_VERTEX_FILE "./rsrc/vertex.glsl"
 #define SHADER_FRAGMENT_FILE "./rsrc/fragment.glsl"
@@ -81,6 +125,9 @@ static b8 opengl_load_shaders(void) {
 	}
 	shader_source_vert[vertlen] = '\0';
 	shader_source_frag[fraglen] = '\0';
+
+	shader_source_vert_size = vertlen + 1;
+	shader_source_frag_size = fraglen + 1;
 
 	fclose(vertfp);
 	fclose(fragfp);
@@ -141,6 +188,8 @@ static b8 opengl_compile_shaders(void) {
 	return TRUE;
 }
 
+mesh_t mesh;
+
 b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * application_name, platform_state_t * pstate) {
 	if (!opengl_load_shaders()) {
 		KERROR("[opengl_renderer_backend_init(backend, application_name, pstate)]");
@@ -154,21 +203,30 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 		return FALSE;
 	}
 
+	mesh.vert_num = VERTICES_NUM;
+	mesh.vertices = vertices;
+	mesh.ind_num = INDICES_NUM;
+	mesh.indices = indices;
+
 	glGenVertexArrays(1, &context.vao);
 	glGenBuffers(1, &context.vbo);
 	glGenBuffers(1, &context.ebo);
 
 	glBindVertexArray(context.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, context.vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mesh.vert_num * sizeof(vertex_t), mesh.vertices, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, context.ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.ind_num * sizeof(u32), mesh.indices, GL_STATIC_DRAW);
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const void *) 0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const void *) (3 * sizeof(GLfloat)));
+	glVertexAttribPointer(0, VERTEX_POSITION_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), VERTEX_POSITION_OFFSET);
+	glVertexAttribPointer(1, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), VERTEX_COLOR_OFFSET);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
+	glEnable(GL_CULL_FACE);
 
 	context.matrix = glGetUniformLocation(context.shader, "in_mvp");
 
@@ -176,6 +234,8 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 }
 
 void opengl_renderer_backend_deinit(renderer_backend_t * backend) {
+	kfree(shader_source_vert, shader_source_vert_size, MEMORY_TAG_RENDERER);
+	kfree(shader_source_frag, shader_source_frag_size, MEMORY_TAG_RENDERER);
 	glDeleteProgram(context.shader);
 }
 
@@ -223,10 +283,10 @@ b8 opengl_renderer_backend_frame_end(renderer_backend_t * backend, f64 delta_tim
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.11, 0.13, 0.12, 1.0);
 	glUseProgram(context.shader);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, context.ebo);
-	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	//glBindVertexArray(0);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, context.ebo);
+	glDrawElements(GL_TRIANGLES, INDICES_NUM, GL_UNSIGNED_INT, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	//glDrawArrays(GL_TRIANGLES, 0, 6);
 	return TRUE;
 }
 

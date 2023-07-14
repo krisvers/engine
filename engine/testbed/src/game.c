@@ -4,12 +4,17 @@
 #include <core/input.h>
 #include <core/event.h>
 #include <containers/dynarray.h>
+#include <containers/transform.h>
+#include <containers/camera.h>
 #include <math/linmath.h>
 #include <math.h>
 
 game_t * this = NULL;
 
 static b8 on_key_press(u16 code, void * sender, void * listener, event_context_t ctx) {
+	if (ctx.data.u16[0] == KEYCODE_ESCAPE) {
+		input_set_cursor_state(CURSOR_STATE_NORMAL);
+	}
 	KLOG("key press %u, %s", ctx.data.u16[0], input_get_key_cstr(ctx.data.u16[0]));
 
 	return FALSE;
@@ -22,6 +27,7 @@ static b8 on_mouse_move(u16 code, void * sender, void * listener, event_context_
 }
 
 static b8 on_mouse_press(u16 code, void * sender, void * listener, event_context_t ctx) {
+	input_set_cursor_state(CURSOR_STATE_GRABBED);
 	KLOG("mouse press %u, %s", ctx.data.u8[0], input_get_mouse_button_cstr(ctx.data.u8[0]));
 
 	return FALSE;
@@ -52,17 +58,19 @@ b8 game_update(game_t * instance, f64 delta_time) {
 	float slow_speed = 0.1f;
 	float fast_speed = 4.0f;
 	float speed = base_speed;
-	float sensitivity = 1.0f;
+	float base_sens = 5.0f;
+	float slow_sens = 1.0f;
+	float sensitivity = base_sens;
+	float mouse_sens = 0.05f;
 
 	vec3 forward;
-	forward[0] = sinf(this->camera->transform.rotation[1]);
-	forward[1] = 0;
-	forward[2] = cosf(this->camera->transform.rotation[1]);
+	transform_forward_yaw(&this->camera->transform, forward);
 	vec3 right;
-	vec3_mul_cross(right, this->camera->transform.up, forward);
+	transform_right_yaw(&this->camera->transform, forward, right);
 
 	if (input_get_key(KEYCODE_LCONTROL)) {
 		speed = slow_speed;
+		sensitivity = slow_sens;
 	}
 	if (input_get_key(KEYCODE_LSHIFT)) {
 		speed = fast_speed;
@@ -98,7 +106,10 @@ b8 game_update(game_t * instance, f64 delta_time) {
 		this->camera->transform.rotation[0] -= sensitivity;
 	}
 
-	KLOG("%f", this->camera->transform.rotation[0]);
+	i16 mouse[2];
+	input_get_mouse_delta(&mouse[0], &mouse[1]);
+	this->camera->transform.rotation[0] += -mouse[1] * mouse_sens;
+	this->camera->transform.rotation[1] += mouse[0] * mouse_sens;
 
 	if (this->camera->transform.rotation[0] > 85) {
 		this->camera->transform.rotation[0] = 85;

@@ -37,12 +37,6 @@ void camera_perspective_matrix(camera_t * cam, mat4x4 R) {
 	mat4x4_rotate_Z(R, R, cam->transform.rotation[2] * (3.141592f / 180.0f));
 }
 
-void camera_forward(camera_t * cam, vec3 R) {
-	R[0] = sinf(this->camera->transform.rotation[1] * (3.141592f / 180.0f));
-	R[1] = 0;
-	R[2] = cosf(this->camera->transform.rotation[1] * (3.141592f / 180.0f));
-}
-
 camera_t * ortho_camera_create(float left, float right, float bottom, float top, float near, float far) {
 	camera_t * cam = kmalloc(sizeof(camera_t), MEMORY_TAG_CAMERA);
 	kmemzero(&cam->transform, sizeof(transform_t));

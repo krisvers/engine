@@ -10,6 +10,7 @@ typedef struct transform {
     vec3 up;
 } transform_t;
 
-void transform_forward(transform_t * transform, vec3 R);
+void KAPI transform_forward_yaw(transform_t * transform, vec3 R);
+void KAPI transform_right_yaw(transform_t * transform, vec3 forward, vec3 R);
 
 #endif

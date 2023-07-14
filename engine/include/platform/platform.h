@@ -17,6 +17,9 @@ void platform_shutdown(platform_state_t * platform_state);
 b8 platform_pump_messages(platform_state_t * platform_state);
 void platform_swap_buffers(platform_state_t * platform_state);
 
+void platform_set_cursor(u8 value);
+u8 platform_get_cursor(void);
+
 void KAPI * platform_malloc(u64 size, b8 aligned);
 void KAPI platform_free(void * ptr, b8 aligned);
 void * platform_memset(void * dst, i32 value, u64 size);

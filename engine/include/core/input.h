@@ -175,6 +175,12 @@ typedef enum keycodesEnum {
     DEFINE_KEYCODE(MAX, KEYCODE_RSUPER),
 } keycodes_enum;
 
+typedef enum cursorStateEnum {
+	CURSOR_STATE_NORMAL = 0,
+	CURSOR_STATE_HIDDEN = 1,
+	CURSOR_STATE_GRABBED = 2,
+} cursor_state_enum;
+
 typedef u8 input_status_t;
 
 void input_init(void);
@@ -195,6 +201,9 @@ b8 KAPI input_get_mouse_button_down(mouse_buttons_enum mb);
 b8 KAPI input_get_mouse_button_up(mouse_buttons_enum mb);
 void KAPI input_get_mouse_pos(i32 * x, i32 * y);
 void KAPI input_get_mouse_delta(i16 * x, i16 * y);
+
+void KAPI input_set_cursor_state(cursor_state_enum state);
+cursor_state_enum KAPI input_get_cursor_state(void);
 
 void input_process_mouse_button(mouse_buttons_enum mb, b8 pressed);
 void input_process_mouse_move(i32 x, i32 y);

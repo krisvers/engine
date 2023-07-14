@@ -2,6 +2,7 @@
 #include <core/event.h>
 #include <core/mem.h>
 #include <core/logger.h>
+#include <platform/platform.h>
 
 typedef struct keyboardState {
 	u8 keys[32];
@@ -61,6 +62,7 @@ typedef struct inputState {
 	keyboard_state_t kb_prev;
 	mouse_state_t m_current;
 	mouse_state_t m_prev;
+	cursor_state_enum cursor_state;
 } input_state_t;
 
 static b8 initialized = FALSE;
@@ -313,6 +315,15 @@ void input_process_mouse_scroll(i8 dx, i8 dy) {
 	ctx.data.i8[0] = dx;
 	ctx.data.i8[1] = dy;
 	event_fire(EVENT_CODE_MOUSE_SCROLL, (void *) input_process_mouse_scroll, ctx);
+}
+
+void input_set_cursor_state(cursor_state_enum cursor_state) {
+	state.cursor_state = cursor_state;
+	platform_set_cursor(cursor_state);
+}
+
+cursor_state_enum input_get_cursor_state(void) {
+	return state.cursor_state;
 }
 
 b8 input_get_key(keycodes_enum key) {
