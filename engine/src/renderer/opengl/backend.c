@@ -218,7 +218,9 @@ void opengl_renderer_backend_deinit(renderer_backend_t * backend) {
 }
 
 void opengl_renderer_backend_on_resize(renderer_backend_t * backend, u32 w, u32 h) {
-	backend->camera->ratio = w / (f32) h;
+	if (backend->camera != NULL) {
+		camera_update_resolution(backend->camera, w, h);
+	}
 	glViewport(0, 0, w, h);
 }
 

@@ -17,8 +17,9 @@ typedef struct camera {
 
 camera_t KAPI * camera_create(f32 fov, f32 near, f32 far, f32 w, f32 h);
 void KAPI camera_destroy(camera_t * cam);
-void KAPI camera_view_matrix(camera_t * cam, mat4x4 R);
-void KAPI camera_perspective_matrix(camera_t * cam, mat4x4 R);
-camera_t KAPI * ortho_camera_create(f32 left, f32 right, f32 bottom, f32 top, f32 near, f32 far);
+void camera_view_matrix(camera_t * cam, mat4x4 R);
+void camera_perspective_matrix(camera_t * cam, mat4x4 R);
+void camera_update_resolution(camera_t * cam, u32 width, u32 height);
+camera_t KAPI * ortho_camera_create(float w, float h, float near, float far);
 
 #endif

@@ -185,8 +185,7 @@ void platform_console_write(const char * message, u8 color) {
 
 	DWORD length = strlen(message);
 	LPDWORD written = 0;
-	printf("%s", message);
-	//WriteConsoleA(h_console, message, length, written, 0);
+	WriteConsoleA(h_console, message, length, written, 0);
 }
 
 void platform_console_write_error(const char * message, u8 color) {
@@ -237,11 +236,11 @@ void platform_set_cursor(u8 value) {
 /* file io */
 
 static const char * file_operation_cstrs[] = {
-	"r",
-	"w",
 	"rb",
 	"wb",
-	"a",
+	"rb",
+	"wb",
+	"ab",
 	"ab",
 };
 

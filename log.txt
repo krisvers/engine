@@ -1,4 +1,4 @@
-Log File Creation Time: Sun Jul 16 01:22:39 2023
+Log File Creation Time: Sun Jul 16 14:31:28 2023
 
 [FATAL]: test message 3.140000
 [ERROR]: test message 3.140000
@@ -28,108 +28,65 @@ Log File Creation Time: Sun Jul 16 01:22:39 2023
  MESH             0.00	  B
  FILE             0.00	  B
 
-[DEBUG]: FPS: 818.464539
-[DEBUG]: FPS: 143.771118
-[INFO]: System memory usage:
- UNKNOWN          0.00	  B
- ARRAY            0.00	  B
- DYNAMIC_ARRAY    192.00	  B
- DICTIONARY       0.00	  B
- RING_QUEUE       0.00	  B
- BST              0.00	  B
- STRING           0.00	  B
- APPLICATION      0.00	  B
- JOB              69.00	  B
- TEXTURE          0.00	  B
- MATERIAL         0.00	  B
- RENDERER         400.00	  B
- GAME             4.00	  B
- TRANSFORM        0.00	  B
- ENTITY           0.00	  B
- NODE             0.00	  B
- SCENE            0.00	  B
- CAMERA           72.00	  B
- MESH             0.00	  B
- FILE             0.00	  B
-
-[DEBUG]: FPS: 144.919144
-[DEBUG]: FPS: 145.393219
-[DEBUG]: FPS: 143.748383
-[DEBUG]: FPS: 144.137909
-[DEBUG]: FPS: 144.427277
+[DEBUG]: FPS: 744.213745
+[DEBUG]: FPS: 144.414749
+[DEBUG]: FPS: 144.017517
+[DEBUG]: FPS: 144.050705
+[DEBUG]: FPS: 143.287003
+[DEBUG]: FPS: 143.789719
+[DEBUG]: FPS: 147.793442
+[DEBUG]: FPS: 144.320969
+[DEBUG]: FPS: 144.558807
+[DEBUG]: FPS: 144.665451
+[DEBUG]: FPS: 144.673828
+[DEBUG]: FPS: 144.429367
+[DEBUG]: FPS: 145.515930
+[DEBUG]: FPS: 144.446045
+[DEBUG]: FPS: 143.731857
+[DEBUG]: FPS: 144.724075
+[DEBUG]: FPS: 1117.318481
 [DEBUG]: FPS: 144.156616
-[INFO]: System memory usage:
- UNKNOWN          0.00	  B
- ARRAY            0.00	  B
- DYNAMIC_ARRAY    192.00	  B
- DICTIONARY       0.00	  B
- RING_QUEUE       0.00	  B
- BST              0.00	  B
- STRING           0.00	  B
- APPLICATION      0.00	  B
- JOB              138.00	  B
- TEXTURE          0.00	  B
- MATERIAL         0.00	  B
- RENDERER         400.00	  B
- GAME             4.00	  B
- TRANSFORM        0.00	  B
- ENTITY           0.00	  B
- NODE             0.00	  B
- SCENE            0.00	  B
- CAMERA           72.00	  B
- MESH             0.00	  B
- FILE             0.00	  B
-
-[DEBUG]: FPS: 144.341797
-[INFO]: System memory usage:
- UNKNOWN          0.00	  B
- ARRAY            0.00	  B
- DYNAMIC_ARRAY    192.00	  B
- DICTIONARY       0.00	  B
- RING_QUEUE       0.00	  B
- BST              0.00	  B
- STRING           0.00	  B
- APPLICATION      0.00	  B
- JOB              207.00	  B
- TEXTURE          0.00	  B
- MATERIAL         0.00	  B
- RENDERER         400.00	  B
- GAME             4.00	  B
- TRANSFORM        0.00	  B
- ENTITY           0.00	  B
- NODE             0.00	  B
- SCENE            0.00	  B
- CAMERA           72.00	  B
- MESH             0.00	  B
- FILE             0.00	  B
-
-[INFO]: System memory usage:
- UNKNOWN          0.00	  B
- ARRAY            0.00	  B
- DYNAMIC_ARRAY    192.00	  B
- DICTIONARY       0.00	  B
- RING_QUEUE       0.00	  B
- BST              0.00	  B
- STRING           0.00	  B
- APPLICATION      0.00	  B
- JOB              276.00	  B
- TEXTURE          0.00	  B
- MATERIAL         0.00	  B
- RENDERER         400.00	  B
- GAME             4.00	  B
- TRANSFORM        0.00	  B
- ENTITY           0.00	  B
- NODE             0.00	  B
- SCENE            0.00	  B
- CAMERA           72.00	  B
- MESH             0.00	  B
- FILE             0.00	  B
-
-[DEBUG]: FPS: 143.961533
-[DEBUG]: FPS: 145.365738
-[DEBUG]: FPS: 144.370972
-[DEBUG]: FPS: 143.028778
-[DEBUG]: FPS: 143.492599
-[DEBUG]: FPS: 142.734802
-[DEBUG]: FPS: 144.316803
-[DEBUG]: FPS: 155.564545
+[DEBUG]: FPS: 1323.977295
+[DEBUG]: FPS: 144.206512
+[DEBUG]: FPS: 144.273087
+[DEBUG]: FPS: 144.343887
+[DEBUG]: FPS: 143.638947
+[DEBUG]: FPS: 143.899384
+[DEBUG]: FPS: 144.275162
+[DEBUG]: FPS: 144.335556
+[DEBUG]: FPS: 145.448196
+[DEBUG]: FPS: 145.638840
+[DEBUG]: FPS: 143.348618
+[DEBUG]: FPS: 144.102600
+[DEBUG]: FPS: 144.000931
+[DEBUG]: FPS: 144.782745
+[DEBUG]: FPS: 144.925430
+[DEBUG]: FPS: 144.025818
+[DEBUG]: FPS: 144.765991
+[DEBUG]: FPS: 143.953247
+[DEBUG]: FPS: 142.897964
+[DEBUG]: FPS: 151.153305
+[DEBUG]: FPS: 143.967758
+[DEBUG]: FPS: 143.702942
+[DEBUG]: FPS: 143.073807
+[DEBUG]: FPS: 143.647202
+[DEBUG]: FPS: 143.750443
+[DEBUG]: FPS: 142.442032
+[DEBUG]: FPS: 143.889038
+[DEBUG]: FPS: 146.530884
+[DEBUG]: FPS: 148.643631
+[DEBUG]: FPS: 144.556717
+[DEBUG]: FPS: 144.583893
+[DEBUG]: FPS: 143.400009
+[DEBUG]: FPS: 143.572968
+[DEBUG]: FPS: 144.631989
+[DEBUG]: FPS: 143.014465
+[DEBUG]: FPS: 145.562531
+[DEBUG]: FPS: 144.805817
+[DEBUG]: FPS: 145.367844
+[DEBUG]: FPS: 145.108398
+[DEBUG]: FPS: 143.480255
+[DEBUG]: FPS: 143.926315
+[DEBUG]: FPS: 144.027878
+[DEBUG]: [application_run()]
+[DEBUG]: closing game

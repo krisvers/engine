@@ -199,6 +199,64 @@ void platform_set_cursor(u8 value) {
 			glfwSetInputMode(current_state->glfw_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			return;
 	}
+}static const char * file_operation_cstrs[] = {
+	"r",
+	"w",
+	"rb",
+	"wb",
+	"a",
+	"ab",
+};
+
+file_desc_t platform_file_open(char * filename, u8 op) {
+	FILE * fp = fopen(filename, file_operation_cstrs[op]);
+	if (fp == NULL) {
+		KERROR("[platform_file_open(filename, op)]");
+		KERROR("failed to open file at %s", filename);
+		return NULL;
+	}
+
+	return fp;
+}
+
+void platform_file_close(file_desc_t fp) {
+	if (fp == NULL) {
+		KERROR("[platform_file_close(fp)]");
+		KERROR("given file descriptor does not describe a file");
+		return;
+	}
+
+	fclose(fp);
+}
+
+void platform_file_read(file_desc_t fp, u64 length, u8 * buffer) {
+	if (fread(buffer, length, 1, fp) != 1) {
+		KERROR("[platform_file_read(fp, length, buffer)]");
+		KERROR("failure whilst reading file");
+		return;
+	}
+}
+
+void platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
+	if (fwrite(buffer, length, 1, fp) != 1) {
+		KERROR("[platform_file_write(fp, length, buffer)]");
+		KERROR("failure whilst writing to file");
+		return;
+	}
+}
+
+u64 platform_file_length(file_desc_t fp) {
+	if (fp == NULL) {
+		KERROR("[platform_file_length(fp)]");
+		KERROR("given file descriptor does not describe a file");
+		return 0;
+	}
+
+	fseek(fp, 0L, SEEK_END);
+	u64 len = ftell(fp);
+	fseek(fp, 0L, SEEK_SET);
+
+	return len;
 }
 
 #ifdef KPLATFORM_VULKAN
