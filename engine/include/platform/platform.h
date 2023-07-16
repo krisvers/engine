@@ -2,6 +2,11 @@
 #define KENGINE_PLATFORM_PLATFORM_H
 
 #include <defines.h>
+#include <stdio.h>
+
+typedef FILE * file_desc_t;
+
+#include <core/file.h>
 
 typedef struct platformState {
 	void * internal_state;
@@ -20,8 +25,8 @@ void platform_swap_buffers(platform_state_t * platform_state);
 void platform_set_cursor(u8 value);
 u8 platform_get_cursor(void);
 
-void KAPI * platform_malloc(u64 size, b8 aligned);
-void KAPI platform_free(void * ptr, b8 aligned);
+void * platform_malloc(u64 size, b8 aligned);
+void platform_free(void * ptr, b8 aligned);
 void * platform_memset(void * dst, i32 value, u64 size);
 void * platform_memcpy(void * dst, const void * src, u64 size);
 void * platform_memzero(void * dst, u64 size);
@@ -31,5 +36,11 @@ void platform_console_write_error(const char * message, u8 color);
 
 f64 platform_get_absolute_time(void);
 void platform_sleep(u64 ms);
+
+file_desc_t platform_file_open(char * filename, u8 op);
+void platform_file_close(file_desc_t fp);
+void platform_file_read(file_desc_t fp, u64 length, u8 * buffer);
+void platform_file_write(file_desc_t fp, u64 length, u8 * buffer);
+u64 platform_file_length(file_desc_t fp);
 
 #endif

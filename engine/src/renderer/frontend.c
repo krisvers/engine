@@ -35,21 +35,21 @@ void renderer_on_resize(u32 w, u32 h) {
     backend->resize(backend, w, h);
 }
 
-b8 renderer_frame_begin(f64 delta_time) {
-    return backend->frame_begin(backend, delta_time);
+b8 renderer_frame_begin(render_packet_t * packet) {
+    return backend->frame_begin(backend, packet);
 }
 
-b8 renderer_frame_end(f64 delta_time) {
+b8 renderer_frame_end(render_packet_t * packet) {
     ++backend->frame_number;
-    return backend->frame_end(backend, delta_time);
+    return backend->frame_end(backend, packet);
 }
 
 b8 renderer_draw_frame(render_packet_t * packet) {
-    if (!renderer_frame_begin(packet->delta_time)) {
+    if (!renderer_frame_begin(packet)) {
         return TRUE;
     }
 
-    b8 result = renderer_frame_end(packet->delta_time);
+    b8 result = renderer_frame_end(packet);
     if (!result) {
         KERROR("[renderer_draw_frame(packet)]");
         KERROR("failed to end renderer frame");

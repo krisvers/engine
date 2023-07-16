@@ -38,6 +38,11 @@ dynarray_t KAPI * _dynarray_pop_at(dynarray_t * array, u64 index, void * dst);
 		array = _dynarray_push(array, (void *) &tmp);	\
 	}
 
+#define dynarray_push_from(array, ptr)					\
+	{													\
+		array = _dynarray_push(array, (void *) ptr);	\
+	}
+
 #define dynarray_pop(array, value_ptr) \
 	_dynarray_pop(array, value_ptr);
 

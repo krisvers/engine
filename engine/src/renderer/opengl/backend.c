@@ -12,67 +12,11 @@
 #include <math/linmath.h>
 #include <containers/vec.h>
 #include <containers/camera.h>
+#include <containers/mesh.h>
+#include <containers/vertex.h>
 #include <stdio.h>
 
 static opengl_context_t context;
-
-typedef struct vertex {
-	vec3 position;
-	vec3 color;
-} vertex_t;
-
-typedef struct mesh {
-	u32 vert_num;
-	vertex_t * vertices;
-	u32 ind_num;
-	u32 * indices;
-} mesh_t;
-
-#define VERTEX_POSITION_OFFSET ((const void *) 0)
-#define VERTEX_POSITION_BYTE_SIZE (sizeof(vec3))
-#define VERTEX_POSITION_SIZE (VERTEX_POSITION_BYTE_SIZE / sizeof(float))
-#define VERTEX_COLOR_OFFSET (VERTEX_POSITION_OFFSET + VERTEX_POSITION_BYTE_SIZE)
-#define VERTEX_COLOR_BYTE_SIZE (sizeof(vec3))
-#define VERTEX_COLOR_SIZE (VERTEX_COLOR_BYTE_SIZE / sizeof(float))
-
-#define VERTICES_NUM 8
-vertex_t vertices[VERTICES_NUM] = {
-	{ { 0, 0, 0 }, { 0, 0, 0 } },
-	{ { 0, 1, 0 }, { 1, 0.3, 0 } },
-	{ { 1, 0, 0 }, { 0, 1, 0.3 } },
-	{ { 1, 1, 0 }, { 0.3, 0, 1 } },
-	{ { 0, 0, -1 }, { 1, 1, 1 } },
-	{ { 0, 1, -1 }, { 1, 0, 1 } },
-	{ { 1, 0, -1 }, { 0, 1, 1 } },
-	{ { 1, 1, -1 }, { 1, 1, 0 } },
-};
-
-#define INDICES_NUM 36
-u32 indices[INDICES_NUM] = {
-	// back
-	0, 1, 2,
-	2, 1, 3,
-
-	// front
-	4, 6, 5,
-	6, 7, 5,
-
-	// bottom
-	0, 2, 6,
-	0, 6, 4,
-
-	// top
-	1, 5, 7,
-	1, 7, 3,
-
-	// left
-	4, 5, 1,
-	4, 1, 0,
-
-	// right
-	2, 3, 7,
-	2, 7, 6,
-};
 
 vec3 position = { 0.0f, 0.0f, -5.0f };
 vec3 rotation = { 0, 0, 0 };
@@ -83,8 +27,8 @@ u64 shader_source_vert_size = 0;
 char * shader_source_frag = NULL;
 u64 shader_source_frag_size = 0;
 
-#define SHADER_VERTEX_FILE "./rsrc/vertex.glsl"
-#define SHADER_FRAGMENT_FILE "./rsrc/fragment.glsl"
+#define SHADER_VERTEX_FILE "./assets/vertex.glsl"
+#define SHADER_FRAGMENT_FILE "./assets/fragment.glsl"
 
 static b8 opengl_load_shaders(void) {
 	FILE * vertfp = fopen(SHADER_VERTEX_FILE, "rb");
@@ -188,7 +132,47 @@ static b8 opengl_compile_shaders(void) {
 	return TRUE;
 }
 
-mesh_t mesh;
+#define MAX_VERTICES 1024
+#define MAX_INDICES 8192
+
+#define VERTICES_NUM 8
+vertex_t vertices[VERTICES_NUM] = {
+	{ { 0, 0, 0 }, { 0, 0, 0 } },
+	{ { 0, 1, 0 }, { 1, 0.3, 0 } },
+	{ { 1, 0, 0 }, { 0, 1, 0.3 } },
+	{ { 1, 1, 0 }, { 0.3, 0, 1 } },
+	{ { 0, 0, -1 }, { 1, 1, 1 } },
+	{ { 0, 1, -1 }, { 1, 0, 1 } },
+	{ { 1, 0, -1 }, { 0, 1, 1 } },
+	{ { 1, 1, -1 }, { 1, 1, 0 } },
+};
+
+#define INDICES_NUM 36
+u32 indices[INDICES_NUM] = {
+	// back
+	0, 1, 2,
+	2, 1, 3,
+
+	// front
+	4, 6, 5,
+	6, 7, 5,
+
+	// bottom
+	0, 2, 6,
+	0, 6, 4,
+
+	// top
+	1, 5, 7,
+	1, 7, 3,
+
+	// left
+	4, 5, 1,
+	4, 1, 0,
+
+	// right
+	2, 3, 7,
+	2, 7, 6,
+};
 
 b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * application_name, platform_state_t * pstate) {
 	if (!opengl_load_shaders()) {
@@ -203,21 +187,16 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 		return FALSE;
 	}
 
-	mesh.vert_num = VERTICES_NUM;
-	mesh.vertices = vertices;
-	mesh.ind_num = INDICES_NUM;
-	mesh.indices = indices;
-
 	glGenVertexArrays(1, &context.vao);
 	glGenBuffers(1, &context.vbo);
 	glGenBuffers(1, &context.ebo);
 
 	glBindVertexArray(context.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, context.vbo);
-	glBufferData(GL_ARRAY_BUFFER, mesh.vert_num * sizeof(vertex_t), mesh.vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, MAX_VERTICES * sizeof(vertex_t), NULL, GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, context.ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.ind_num * sizeof(u32), mesh.indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, MAX_INDICES * sizeof(indice_t), NULL, GL_DYNAMIC_DRAW);
 	
 	glVertexAttribPointer(0, VERTEX_POSITION_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), VERTEX_POSITION_OFFSET);
 	glVertexAttribPointer(1, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const void *) VERTEX_COLOR_OFFSET);
@@ -243,12 +222,18 @@ void opengl_renderer_backend_on_resize(renderer_backend_t * backend, u32 w, u32 
 	glViewport(0, 0, w, h);
 }
 
-b8 opengl_renderer_backend_frame_begin(renderer_backend_t * backend, f64 delta_time) {
+b8 opengl_renderer_backend_frame_begin(renderer_backend_t * backend, render_packet_t * packet) {
 	if (backend->camera == NULL) {
 		KERROR("[opengl_renderer_backend_frame_begin(backend, delta_time)]");
 		KERROR("no camera assigned");
 		return TRUE;
 	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, context.vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, packet->mesh->vertices->length * sizeof(vertex_t), packet->mesh->vertices->array);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, context.ebo);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, packet->mesh->indices->length * sizeof(indice_t), packet->mesh->indices->array);
 
 	mat4x4 m, v, p, mvp;
 	mat4x4_identity(m);
@@ -273,7 +258,7 @@ b8 opengl_renderer_backend_frame_begin(renderer_backend_t * backend, f64 delta_t
 	return TRUE;
 }
 
-b8 opengl_renderer_backend_frame_end(renderer_backend_t * backend, f64 delta_time) {
+b8 opengl_renderer_backend_frame_end(renderer_backend_t * backend, render_packet_t * packet) {
 	if (backend->camera == NULL) {
 		KERROR("[opengl_renderer_backend_frame_end(backend, delta_time)]");
 		KERROR("no camera assigned");
@@ -282,7 +267,7 @@ b8 opengl_renderer_backend_frame_end(renderer_backend_t * backend, f64 delta_tim
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.12, 0.07, 0.12, 1.0);
 	glUseProgram(context.shader);
-	glDrawElements(GL_TRIANGLES, INDICES_NUM, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, packet->mesh->indices->length * sizeof(indice_t), GL_UNSIGNED_INT, 0);
 	return TRUE;
 }
 

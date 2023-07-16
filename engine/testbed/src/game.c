@@ -3,6 +3,8 @@
 #include <core/logger.h>
 #include <core/input.h>
 #include <core/event.h>
+#include <core/file.h>
+#include <core/mem.h>
 #include <containers/dynarray.h>
 #include <containers/transform.h>
 #include <containers/camera.h>
@@ -12,30 +14,31 @@
 game_t * this = NULL;
 
 static b8 on_key_press(u16 code, void * sender, void * listener, event_context_t ctx) {
-	if (ctx.data.u16[0] == KEYCODE_ESCAPE) {
-		input_set_cursor_state(CURSOR_STATE_NORMAL);
+	switch (ctx.data.u16[0]) {
+		case KEYCODE_ESCAPE:
+			input_set_cursor_state(CURSOR_STATE_NORMAL);
+			break;
+		case KEYCODE_F1:
+			KLOG("%s", memory_get_usage_cstr());
+			break;
+		default:
+			break;
 	}
-	KLOG("key press %u, %s", ctx.data.u16[0], input_get_key_cstr(ctx.data.u16[0]));
 
 	return FALSE;
 }
 
 static b8 on_mouse_move(u16 code, void * sender, void * listener, event_context_t ctx) {
-	KLOG("mouse move %i, %i", ctx.data.i32[0], ctx.data.i32[1]);
-
 	return FALSE;
 }
 
 static b8 on_mouse_press(u16 code, void * sender, void * listener, event_context_t ctx) {
 	input_set_cursor_state(CURSOR_STATE_GRABBED);
-	KLOG("mouse press %u, %s", ctx.data.u8[0], input_get_mouse_button_cstr(ctx.data.u8[0]));
 
 	return FALSE;
 }
 
 static b8 on_mouse_scroll(u16 code, void * sender, void * listener, event_context_t ctx) {
-	KLOG("mouse scroll %i, %i", ctx.data.i8[0], ctx.data.i8[1]);
-
 	return FALSE;
 }
 

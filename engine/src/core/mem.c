@@ -24,6 +24,8 @@ static const char * memory_tag_strings[MEMORY_TAG_MAX] = {
 	"NODE         ",
 	"SCENE        ",
 	"CAMERA       ",
+	"MESH         ",
+	"FILE         ",
 };
 
 typedef struct memoryStats {
@@ -85,10 +87,12 @@ void * kmemset(void * dst, i32 value, u64 size) {
 #define TMP_MEM_MIB_SIZE (1024 * TMP_MEM_KIB_SIZE)
 #define TMP_MEM_GIB_SIZE (1024 * TMP_MEM_MIB_SIZE)
 
-static char memory_usage_buffer[1024] = "System memory usage:\n";
+#define MEMORY_USAGE_DEFAULT_STRING "System memory usage:\n"
+static char memory_usage_buffer[1024] = MEMORY_USAGE_DEFAULT_STRING;
 
 char * memory_get_usage_cstr(void) {
-	u64 offset = strlen(memory_usage_buffer);
+	u64 offset = strlen(MEMORY_USAGE_DEFAULT_STRING);
+	kmemzero(memory_usage_buffer + offset, 1024 - offset);
 
 	for (u32 i = 0; i < MEMORY_TAG_MAX; ++i) {
 		char unit[4] = "_iB";

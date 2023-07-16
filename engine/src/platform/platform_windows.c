@@ -16,10 +16,13 @@
 #include <GLFW/glfw3.h>
 #include <core/logger.h>
 #include <core/input.h>
+#include <core/file.h>
 #include <containers/dynarray.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <renderer/frontend.h>
 
 #ifdef KPLATFORM_VULKAN
 #include <renderer/vulkan/vulkan_types.h>
@@ -42,6 +45,8 @@ typedef struct internalState {
 internal_state_t * current_state;
 static f64 clock_frequency;
 static LARGE_INTEGER start_time;
+
+/* setup */
 
 b8 platform_startup(
 	platform_state_t * platform_state,
@@ -120,6 +125,8 @@ void platform_shutdown(platform_state_t * platform_state) {
 	free(state);
 }
 
+/* updating window and polling input */
+
 b8 platform_pump_messages(platform_state_t * platform_state) {
 	internal_state_t * state = (internal_state_t *) platform_state->internal_state;
 
@@ -141,6 +148,8 @@ void platform_swap_buffers(platform_state_t * platform_state) {
 	glfwSwapBuffers(state->glfw_win);
 }
 
+/* memory management */
+
 void * platform_malloc(u64 size, b8 aligned) {
 	return malloc(size);
 }
@@ -161,6 +170,8 @@ void * platform_memzero(void * dst, u64 size) {
 	return memset(dst, 0, size);
 }
 
+/* console write */
+
 void platform_console_write(const char * message, u8 color) {
 	HANDLE h_console = GetStdHandle(STD_OUTPUT_HANDLE);
 	static u8 levels[6] = { 0x40, 0x04, 0x06, 0x02, 0x01, 0x08 };
@@ -174,7 +185,8 @@ void platform_console_write(const char * message, u8 color) {
 
 	DWORD length = strlen(message);
 	LPDWORD written = 0;
-	WriteConsoleA(h_console, message, length, written, 0);
+	printf("%s", message);
+	//WriteConsoleA(h_console, message, length, written, 0);
 }
 
 void platform_console_write_error(const char * message, u8 color) {
@@ -193,6 +205,8 @@ void platform_console_write_error(const char * message, u8 color) {
 	WriteConsoleA(h_console, message, length, written, 0);
 }
 
+/* time */
+
 f64 platform_get_absolute_time(void) {
 	LARGE_INTEGER now;
 	QueryPerformanceCounter(&now);
@@ -202,6 +216,8 @@ f64 platform_get_absolute_time(void) {
 void platform_sleep(u64 ms) {
 	Sleep(ms);
 }
+
+/* cursor */
 
 void platform_set_cursor(u8 value) {
 	switch (value) {
@@ -218,6 +234,70 @@ void platform_set_cursor(u8 value) {
 	}
 }
 
+/* file io */
+
+static const char * file_operation_cstrs[] = {
+	"r",
+	"w",
+	"rb",
+	"wb",
+	"a",
+	"ab",
+};
+
+file_desc_t platform_file_open(char * filename, u8 op) {
+	FILE * fp = fopen(filename, file_operation_cstrs[op]);
+	if (fp == NULL) {
+		KERROR("[platform_file_open(filename, op)]");
+		KERROR("failed to open file at %s", filename);
+		return NULL;
+	}
+
+	return fp;
+}
+
+void platform_file_close(file_desc_t fp) {
+	if (fp == NULL) {
+		KERROR("[platform_file_close(fp)]");
+		KERROR("given file descriptor does not describe a file");
+		return;
+	}
+
+	fclose(fp);
+}
+
+void platform_file_read(file_desc_t fp, u64 length, u8 * buffer) {
+	if (fread(buffer, length, 1, fp) != 1) {
+		KERROR("[platform_file_read(fp, length, buffer)]");
+		KERROR("failure whilst reading file");
+		return;
+	}
+}
+
+void platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
+	if (fwrite(buffer, length, 1, fp) != 1) {
+		KERROR("[platform_file_write(fp, length, buffer)]");
+		KERROR("failure whilst writing to file");
+		return;
+	}
+}
+
+u64 platform_file_length(file_desc_t fp) {
+	if (fp == NULL) {
+		KERROR("[platform_file_length(fp)]");
+		KERROR("given file descriptor does not describe a file");
+		return 0;
+	}
+
+	fseek(fp, 0L, SEEK_END);
+	u64 len = ftell(fp);
+	fseek(fp, 0L, SEEK_SET);
+
+	return len;
+}
+
+/* vulkan */
+
 #ifdef KPLATFORM_VULKAN
 void platform_get_required_extension_names(dynarray_t ** array) {
 	u32 glfw_max_extensions;
@@ -225,6 +305,8 @@ void platform_get_required_extension_names(dynarray_t ** array) {
 	dynarray_merge_array(*array, glfw_extensions, glfw_max_extensions);
 }
 #endif
+
+/* glfw handlers */
 
 static void glfw_error_handler(int error, const char * desc) {
 	KERROR("GLFW error: %i, \"%s\"", error, desc);

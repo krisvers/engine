@@ -1,4 +1,4 @@
-Log File Creation Time: Fri Jul 14 18:09:43 2023
+Log File Creation Time: Sun Jul 16 01:22:39 2023
 
 [FATAL]: test message 3.140000
 [ERROR]: test message 3.140000
@@ -6,25 +6,130 @@ Log File Creation Time: Fri Jul 14 18:09:43 2023
 [INFO]: test message 3.140000
 [DEBUG]: test message 3.140000
 [TRACE]: test message 3.140000
-[INFO]: key press 87, KEYCODE_W
-[INFO]: key press 83, KEYCODE_S
-[INFO]: key press 150, KEYCODE_UP
-[INFO]: key press 149, KEYCODE_LEFT
-[INFO]: key press 151, KEYCODE_DOWN
-[INFO]: key press 148, KEYCODE_RIGHT
-[INFO]: key press 150, KEYCODE_UP
-[INFO]: key press 149, KEYCODE_LEFT
-[INFO]: key press 151, KEYCODE_DOWN
-[INFO]: key press 148, KEYCODE_RIGHT
-[INFO]: key press 150, KEYCODE_UP
-[INFO]: key press 149, KEYCODE_LEFT
-[INFO]: key press 148, KEYCODE_RIGHT
-[INFO]: key press 151, KEYCODE_DOWN
-[INFO]: key press 149, KEYCODE_LEFT
-[INFO]: key press 148, KEYCODE_RIGHT
-[INFO]: key press 149, KEYCODE_LEFT
-[INFO]: key press 150, KEYCODE_UP
-[INFO]: key press 151, KEYCODE_DOWN
-[INFO]: key press 150, KEYCODE_UP
-[INFO]: key press 160, KEYCODE_LSHIFT
-[INFO]: key press 166, KEYCODE_LSUPER
+[INFO]: System memory usage:
+ UNKNOWN          0.00	  B
+ ARRAY            0.00	  B
+ DYNAMIC_ARRAY    192.00	  B
+ DICTIONARY       0.00	  B
+ RING_QUEUE       0.00	  B
+ BST              0.00	  B
+ STRING           0.00	  B
+ APPLICATION      0.00	  B
+ JOB              0.00	  B
+ TEXTURE          0.00	  B
+ MATERIAL         0.00	  B
+ RENDERER         400.00	  B
+ GAME             4.00	  B
+ TRANSFORM        0.00	  B
+ ENTITY           0.00	  B
+ NODE             0.00	  B
+ SCENE            0.00	  B
+ CAMERA           72.00	  B
+ MESH             0.00	  B
+ FILE             0.00	  B
+
+[DEBUG]: FPS: 818.464539
+[DEBUG]: FPS: 143.771118
+[INFO]: System memory usage:
+ UNKNOWN          0.00	  B
+ ARRAY            0.00	  B
+ DYNAMIC_ARRAY    192.00	  B
+ DICTIONARY       0.00	  B
+ RING_QUEUE       0.00	  B
+ BST              0.00	  B
+ STRING           0.00	  B
+ APPLICATION      0.00	  B
+ JOB              69.00	  B
+ TEXTURE          0.00	  B
+ MATERIAL         0.00	  B
+ RENDERER         400.00	  B
+ GAME             4.00	  B
+ TRANSFORM        0.00	  B
+ ENTITY           0.00	  B
+ NODE             0.00	  B
+ SCENE            0.00	  B
+ CAMERA           72.00	  B
+ MESH             0.00	  B
+ FILE             0.00	  B
+
+[DEBUG]: FPS: 144.919144
+[DEBUG]: FPS: 145.393219
+[DEBUG]: FPS: 143.748383
+[DEBUG]: FPS: 144.137909
+[DEBUG]: FPS: 144.427277
+[DEBUG]: FPS: 144.156616
+[INFO]: System memory usage:
+ UNKNOWN          0.00	  B
+ ARRAY            0.00	  B
+ DYNAMIC_ARRAY    192.00	  B
+ DICTIONARY       0.00	  B
+ RING_QUEUE       0.00	  B
+ BST              0.00	  B
+ STRING           0.00	  B
+ APPLICATION      0.00	  B
+ JOB              138.00	  B
+ TEXTURE          0.00	  B
+ MATERIAL         0.00	  B
+ RENDERER         400.00	  B
+ GAME             4.00	  B
+ TRANSFORM        0.00	  B
+ ENTITY           0.00	  B
+ NODE             0.00	  B
+ SCENE            0.00	  B
+ CAMERA           72.00	  B
+ MESH             0.00	  B
+ FILE             0.00	  B
+
+[DEBUG]: FPS: 144.341797
+[INFO]: System memory usage:
+ UNKNOWN          0.00	  B
+ ARRAY            0.00	  B
+ DYNAMIC_ARRAY    192.00	  B
+ DICTIONARY       0.00	  B
+ RING_QUEUE       0.00	  B
+ BST              0.00	  B
+ STRING           0.00	  B
+ APPLICATION      0.00	  B
+ JOB              207.00	  B
+ TEXTURE          0.00	  B
+ MATERIAL         0.00	  B
+ RENDERER         400.00	  B
+ GAME             4.00	  B
+ TRANSFORM        0.00	  B
+ ENTITY           0.00	  B
+ NODE             0.00	  B
+ SCENE            0.00	  B
+ CAMERA           72.00	  B
+ MESH             0.00	  B
+ FILE             0.00	  B
+
+[INFO]: System memory usage:
+ UNKNOWN          0.00	  B
+ ARRAY            0.00	  B
+ DYNAMIC_ARRAY    192.00	  B
+ DICTIONARY       0.00	  B
+ RING_QUEUE       0.00	  B
+ BST              0.00	  B
+ STRING           0.00	  B
+ APPLICATION      0.00	  B
+ JOB              276.00	  B
+ TEXTURE          0.00	  B
+ MATERIAL         0.00	  B
+ RENDERER         400.00	  B
+ GAME             4.00	  B
+ TRANSFORM        0.00	  B
+ ENTITY           0.00	  B
+ NODE             0.00	  B
+ SCENE            0.00	  B
+ CAMERA           72.00	  B
+ MESH             0.00	  B
+ FILE             0.00	  B
+
+[DEBUG]: FPS: 143.961533
+[DEBUG]: FPS: 145.365738
+[DEBUG]: FPS: 144.370972
+[DEBUG]: FPS: 143.028778
+[DEBUG]: FPS: 143.492599
+[DEBUG]: FPS: 142.734802
+[DEBUG]: FPS: 144.316803
+[DEBUG]: FPS: 155.564545

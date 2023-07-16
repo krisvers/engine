@@ -87,6 +87,8 @@ b8 application_create(game_t * instance) {
 	return TRUE;
 }
 
+static f64 last_print = 0;
+
 b8 application_run(void) {
 	clock_start(&app_state.clock);
 	clock_update(&app_state.clock);
@@ -101,7 +103,7 @@ b8 application_run(void) {
 		KFATAL("Application was not initialized");
 		return FALSE;
 	}
-	//KLOG(memory_get_usage_cstr());
+	KLOG(memory_get_usage_cstr());
 
 	while (app_state.running) {
 		if (!platform_pump_messages(&app_state.platform)) {
@@ -141,13 +143,39 @@ b8 application_run(void) {
 		// refactor this!!
 		render_packet_t packet;
 		packet.delta_time = delta;
+		packet.mesh = mesh_create();
+		vertex_t a = {
+			.position = { 0, 0, 0 },
+			.color = { 1, 1, 0 },
+		};
+		vertex_t b = {
+			.position = { 0, 1, 0 },
+			.color = { 0, 1, 1 },
+		};
+		vertex_t c = {
+			.position = { 1, 1, 0 },
+			.color = { 1, 0, 1 },
+		};
+		mesh_push_vertex(packet.mesh, &a);
+		mesh_push_vertex(packet.mesh, &b);
+		mesh_push_vertex(packet.mesh, &c);
+		indice_t indice = { 2, 1, 0 };
+		mesh_push_indices_value(packet.mesh, indice);
+		indice = (indice_t) { 0, 1, 2 };
+		mesh_push_indices_value(packet.mesh, indice);
 		if (!renderer_draw_frame(&packet)) {
 		}
+		mesh_destroy(packet.mesh);
 
 		platform_swap_buffers(&app_state.platform);
 
 		f64 frame_end = platform_get_absolute_time();
-		f64 frame_elapsed = frame_end - frame_start;
+		f32 frame_elapsed = frame_end - frame_start;
+		if (frame_end - last_print > 0.5) {
+			f32 fps = 1 / frame_elapsed;
+			KDEBUG("FPS: %f", fps);
+			last_print = frame_end;
+		}
 		running_time += frame_elapsed;
 		f64 remaining_seconds = target_spf - frame_elapsed;
 

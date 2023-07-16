@@ -22,6 +22,8 @@ typedef enum memoryTagEnum {
 	MEMORY_TAG_NODE,
 	MEMORY_TAG_SCENE,
 	MEMORY_TAG_CAMERA,
+	MEMORY_TAG_MESH,
+	MEMORY_TAG_FILE,
 
 	MEMORY_TAG_MAX,
 } memory_tag_enum;

@@ -1,10 +1,10 @@
 #include <core/logger.h>
+#include <core/string.h>
+#include <core/mem.h>
 #include <platform/platform.h>
 #include <defines.h>
 #include <time.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdarg.h>
 
 static logger_func log_custom_output;
@@ -34,7 +34,7 @@ void KAPI log_set_logfile(char * filename) {
 		KFATAL("[log_set_logfile()]:");
 		KFATAL(" can't create file %s", filename);
 		log_deinit();
-		abort();
+		return;
 	}
 	log_to_files = TRUE;
 	time_t raw;
@@ -65,10 +65,17 @@ void KAPI log_output(log_level_enum level, const char * message, ...) {
 	va_start(arg_ptr, message);
 
 	char format_buffer[1024];
-	memset(format_buffer, 0, 1024);
+	//kmemzero(format_buffer, 1024);
 
 	vsnprintf(format_buffer, 1024, message, arg_ptr);
 	va_end(arg_ptr);
+
+#ifdef LOG_CONSOLE
+	platform_console_write(log_level_strings[level], level);
+	platform_console_write(": ", level);
+	platform_console_write(format_buffer, level);
+	platform_console_write("\n", level);
+#endif
 
 	if (log_custom_output != NULL) {
 		log_custom_output(level, format_buffer);
@@ -77,43 +84,8 @@ void KAPI log_output(log_level_enum level, const char * message, ...) {
 	if (log_to_files && log_output_file != NULL) {
 		log_output_file(level, format_buffer);
 	}
-
-	size_t last = 0;
-	for (size_t i = 0; format_buffer[i] != '\0'; ++i) {
-		if (format_buffer[i] == '\n') {
-			format_buffer[i] = '\0';
-			platform_console_write(log_level_strings[level], level);
-			platform_console_write(": ", level);
-			platform_console_write(&format_buffer[last], level);
-			platform_console_write("\n", 7);
-			last = i + 1;
-		}
-
-		if (i >= 1024) {
-			format_buffer[1023] = '\0';
-			break;
-		}
-	}
-	if (last == 0) {
-		platform_console_write(log_level_strings[level], level);
-		platform_console_write(": ", level);
-		platform_console_write(&format_buffer[last], level);
-		platform_console_write("\n", 7);
-	}
 }
 
 static void log_output_file_default(log_level_enum level, const char * formatted_message) {
-	char * msg = (char *) formatted_message;
-
-	size_t last = 0;
-	for (size_t i = 0; msg[i] != '\0'; ++i) {
-		if (msg[i] == '\n') {
-			msg[i] = '\0';
-			fprintf(logfp, "%s: %s\n", log_level_strings[level], &msg[last]);
-			last = i + 1;
-		}
-	}
-	if (last == 0) {
-		fprintf(logfp, "%s: %s\n", log_level_strings[level], msg);
-	}
+	fprintf(logfp, "%s: %s\n", log_level_strings[level], formatted_message);
 }

@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <renderer/frontend.h>
 
 static void glfw_error_handler(int error, const char * desc);
 static void glfw_key_handler(GLFWwindow * window, int key, int scancode, int action, int mods);
@@ -153,11 +154,23 @@ void * platform_memzero(void * dst, u64 size) {
 }
 
 void platform_console_write(const char * message, u8 color) {
-	printf("%s", message);
+	static const char * escape_colors[6] = { "0;41", "1;31", "1;33", "1;32", "1;34", "1;36" };
+
+	if (color >= LOG_LEVEL_TRACE) {
+		printf("%s", message);
+		return;
+	}
+	printf("\033[%sm%s\033[0m", escape_colors[color], message);
 }
 
 void platform_console_write_error(const char * message, u8 color) {
-	fprintf(stderr, "%s", message);
+	static const char * escape_colors[6] = { "0;41", "1;31", "1;33", "1;32", "1;34", "1;36" };
+
+	if (color >= LOG_LEVEL_TRACE) {
+		printf("%s", message);
+		return;
+	}
+	fprintf(stderr, "\033[%sm%s\033[0m", escape_colors[color], message);
 }
 
 f64 platform_get_absolute_time(void) {
