@@ -1,7 +1,7 @@
-Log File Creation Time: Sun Jul 16 23:27:35 2023
+Log File Creation Time: Mon Jul 17 02:23:11 2023
 
-[INFO]: test message 3.140000
-[INFO]: System memory usage:
+INFO: ./src/core/application.c:45 test message 3.140000
+INFO: ./src/core/application.c:101 System memory usage:
  UNKNOWN          0.00	  B
  ARRAY            0.00	  B
  DYNAMIC_ARRAY    192.00	  B

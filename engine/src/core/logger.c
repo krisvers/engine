@@ -15,7 +15,7 @@ static char * logfile;
 static log_level_enum log_level_file;
 static FILE * logfp;
 static const char * log_level_strings[6] = {
-	"[FATAL]", "[ERROR]", "[WARN]", "[INFO]", "[DEBUG]", "[TRACE]"
+	"FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE"
 };
 
 b8 KAPI log_init(void) {
@@ -73,8 +73,15 @@ void KAPI log_output(log_level_enum level, const char * message, ...) {
 	va_end(arg_ptr);
 
 #ifdef LOG_CONSOLE
+	f64 time = platform_get_absolute_time();
+	char time_buffer[14];
+	snprintf(time_buffer, 14, "%.2lf", time);
+
+	platform_console_write("[", level);
 	platform_console_write(log_level_strings[level], level);
-	platform_console_write(": ", level);
+	platform_console_write(" : ", level);
+	platform_console_write(time_buffer, level);
+	platform_console_write("]: ", level);
 	platform_console_write(format_buffer, level);
 	platform_console_write("\n", level);
 #endif

@@ -106,10 +106,7 @@ b8 platform_startup(
 	glfwSetWindowCloseCallback(state->glfw_win, glfw_window_close_handler);
 	glfwSetFramebufferSizeCallback(state->glfw_win, glfw_window_resize_handler);
 
-	LARGE_INTEGER frequency;
-	QueryPerformanceFrequency(&frequency);
-	clock_frequency = 1.0f / (f64) frequency.QuadPart;
-	QueryPerformanceCounter(&start_time);
+	glfwSetTime(0);
 
 	state->running = TRUE;
 
@@ -207,9 +204,7 @@ void platform_console_write_error(const char * message, u8 color) {
 /* time */
 
 f64 platform_get_absolute_time(void) {
-	LARGE_INTEGER now;
-	QueryPerformanceCounter(&now);
-	return (f64) now.QuadPart * clock_frequency;
+	return glfwGetTime();
 }
 
 void platform_sleep(u64 ms) {

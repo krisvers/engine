@@ -98,7 +98,7 @@ b8 application_run(void) {
 		KFATAL("Application was not initialized");
 		return FALSE;
 	}
-	KLOG(memory_get_usage_cstr());
+	KLOG("%s", memory_get_usage_cstr());
 
 	while (app_state.running) {
 		if (!platform_pump_messages(&app_state.platform)) {
@@ -110,9 +110,9 @@ b8 application_run(void) {
 		}
 
 		clock_update(&app_state.clock);
+		f64 frame_start = platform_get_absolute_time();
 		f64 current_time = app_state.clock.elapsed;
 		f64 delta = (current_time - app_state.last_time);
-		f64 frame_start = platform_get_absolute_time();
 
 		if (!app_state.game_instance->update(app_state.game_instance, delta)) {
 			KFATAL("[application_run()]");

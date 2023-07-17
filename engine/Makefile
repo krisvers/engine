@@ -1,6 +1,6 @@
 CC = clang
 LIBS = -lglfw -lm
-FLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-newline-eof -Wno-unused-parameter -Wno-gnu-pointer-arith -Wno-gnu-zero-variadic-macro-arguments -Iinclude -fPIC -shared -DKEXPORT -Wno-gnu-empty-initializer -Wno-unused-variable -Wno-sign-compare -Wno-missing-field-initializers -O3 # -ferror-limit=100
+FLAGS = -std=c99 -Wall -Wextra -Wpedantic -Wno-newline-eof -Wno-unused-parameter -Wno-pointer-arith -Wno-gnu-zero-variadic-macro-arguments -Iinclude -fPIC -shared -DKEXPORT -Wno-gnu-empty-initializer -Wno-unused-variable -Wno-sign-compare -Wno-missing-field-initializers -O3 -ferror-limit=1000
 DEBUG = -DDEBUG_FLAG -DLOG_CONSOLE -g
 SRCDIR = ./src
 FILES = $(shell find $(SRCDIR) -type f -name "*.c")

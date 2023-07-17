@@ -1,4 +1,5 @@
 #include <core/mem.h>
+#include <core/assert.h>
 #include <core/logger.h>
 #include <platform/platform.h>
 
@@ -54,11 +55,13 @@ void * kmalloc(u64 size, memory_tag_enum tag) {
 
 	// TODO: mem alignment
 	void * ptr = platform_malloc(size, FALSE);
+	KASSERT(ptr != NULL);
 	platform_memzero(ptr, size);
 	return ptr;
 }
 
 void kfree(void * ptr, u64 size, memory_tag_enum tag) {
+	KASSERT(ptr != NULL);
 	if (tag == MEMORY_TAG_UNKNOWN) {
 		KWARN("[kmalloc(size, tag)]:");
 		KWARN(" using MEMORY_TAG_UNKNOWN instead of providing one");
