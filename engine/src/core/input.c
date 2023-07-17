@@ -34,6 +34,8 @@ typedef struct mouseState {
 	i16 x;
 	i16 y;
 	u8 buttons;
+	i8 scroll_x;
+	i8 scroll_y;
 } mouse_state_t;
 
 static void input_mouse_set(mouse_state_t * state, mouse_buttons_enum mb, b8 pressed) {
@@ -273,6 +275,9 @@ void input_update(f64 delta_time) {
 
 	kmemcpy(&state.kb_prev, &state.kb_current, sizeof(keyboard_state_t));
 	kmemcpy(&state.m_prev, &state.m_current, sizeof(mouse_state_t));
+
+	state.m_current.scroll_x = 0;
+	state.m_current.scroll_y = 0;
 }
 
 void input_process_key(keycodes_enum key, b8 pressed) {
@@ -311,8 +316,11 @@ void input_process_mouse_move(i32 x, i32 y) {
 }
 
 void input_process_mouse_scroll(i8 dx, i8 dy) {
+	state.m_current.scroll_x = -dx;
+	state.m_current.scroll_y = dy;
+
 	event_context_t ctx;
-	ctx.data.i8[0] = dx;
+	ctx.data.i8[0] = -dx;
 	ctx.data.i8[1] = dy;
 	event_fire(EVENT_CODE_MOUSE_SCROLL, (void *) input_process_mouse_scroll, ctx);
 }
@@ -408,4 +416,14 @@ void input_get_mouse_delta(i16 * x, i16 * y) {
 
 	*x = state.m_current.x - state.m_prev.x;
 	*y = state.m_current.y - state.m_prev.y;
+}
+
+void input_get_mouse_scroll(i8 * dx, i8 * dy) {
+	if (!initialized) {
+		*dx = 0; *dy = 0;
+		return;
+	}
+
+	*dx = state.m_current.scroll_x;
+	*dy = state.m_current.scroll_y;
 }

@@ -37,17 +37,12 @@ b8 application_create(game_t * instance) {
 	// init systems
 	log_init();
 	#ifdef DEBUG_FLAG
-	log_set_logfile("log.txt");
+	log_set_logfile("log.txt", LOG_LEVEL_INFO);
 	#endif
 	input_init();
 
 	// test
-	KFATAL("test message %lf", 3.14);
-	KERROR("test message %lf", 3.14);
-	KWARN("test message %lf", 3.14);
 	KINFO("test message %lf", 3.14);
-	KDEBUG("test message %lf", 3.14);
-	KTRACE("test message %lf", 3.14);
 
 	app_state.running = TRUE;
 	app_state.suspended = FALSE;
@@ -145,23 +140,36 @@ b8 application_run(void) {
 		packet.delta_time = delta;
 		packet.mesh = mesh_create();
 		vertex_t a = {
-			.position = { 0, 0, 0 },
+			.position = { -frame_count, -1, 0 },
 			.color = { 1, 1, 0 },
+			.uv = { 0, 0 },
+			.tex = 1,
 		};
 		vertex_t b = {
-			.position = { 0, 1, 0 },
+			.position = { -1, 1, 0 },
 			.color = { 0, 1, 1 },
+			.uv = { 0, 1 },
+			.tex = 1,
 		};
 		vertex_t c = {
+				.position = { 1, -1, 0 },
+				.color = { 1, 0, 1 },
+				.uv = { 1, 0 },
+				.tex = 1,
+		};
+		vertex_t d = {
 			.position = { 1, 1, 0 },
-			.color = { 1, 0, 1 },
+			.color = { 1, 1, 1 },
+			.uv = { 1, 1 },
+			.tex = 1,
 		};
 		mesh_push_vertex(packet.mesh, &a);
 		mesh_push_vertex(packet.mesh, &b);
 		mesh_push_vertex(packet.mesh, &c);
-		indice_t indice = { 2, 1, 0 };
+		mesh_push_vertex(packet.mesh, &d);
+		indice_t indice = { 0, 1, 3 };
 		mesh_push_indices_value(packet.mesh, indice);
-		indice = (indice_t) { 0, 1, 2 };
+		indice = (indice_t) { 0, 3, 2 };
 		mesh_push_indices_value(packet.mesh, indice);
 		if (!renderer_draw_frame(&packet)) {
 		}

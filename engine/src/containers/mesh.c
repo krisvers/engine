@@ -41,3 +41,7 @@ void mesh_push_indices_value(mesh_t * mesh, indice_t indices) {
 void mesh_pop_indices(mesh_t * mesh, indice_t * out_indices) {
 	dynarray_pop(mesh->indices, out_indices);
 }
+
+void mesh_merge(mesh_t * mesha, mesh_t * meshb) {
+
+}

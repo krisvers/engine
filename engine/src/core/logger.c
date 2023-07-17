@@ -12,6 +12,7 @@ static void log_output_file_default(log_level_enum level, const char * message);
 static logger_func log_output_file = log_output_file_default;
 static b8 log_to_files = FALSE;
 static char * logfile;
+static log_level_enum log_level_file;
 static FILE * logfp;
 static const char * log_level_strings[6] = {
 	"[FATAL]", "[ERROR]", "[WARN]", "[INFO]", "[DEBUG]", "[TRACE]"
@@ -27,8 +28,9 @@ void KAPI log_deinit(void) {
 	if (logfp != NULL) { log_unset_logfile(); }
 }
 
-void KAPI log_set_logfile(char * filename) {
+void KAPI log_set_logfile(char * filename, log_level_enum level) {
 	logfile = filename;
+	log_level_file = level;
 	logfp = fopen(filename, "w");
 	if (logfp == NULL) {
 		KFATAL("[log_set_logfile()]:");
@@ -87,5 +89,8 @@ void KAPI log_output(log_level_enum level, const char * message, ...) {
 }
 
 static void log_output_file_default(log_level_enum level, const char * formatted_message) {
+	if (level > log_level_file) {
+		return;
+	}
 	fprintf(logfp, "%s: %s\n", log_level_strings[level], formatted_message);
 }

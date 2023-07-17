@@ -25,7 +25,7 @@ typedef enum logLevelEnum {
 b8 log_init(void);
 void log_deinit(void);
 
-void KAPI log_set_logfile(char * filename);
+void KAPI log_set_logfile(char * filename, log_level_enum level);
 void KAPI log_unset_logfile(void);
 
 typedef void (* logger_func)(log_level_enum level, const char * message);

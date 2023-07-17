@@ -30,8 +30,8 @@ b8 game_create(game_t * out_game) {
 	out_game->state = kmalloc(sizeof(game_state_t), MEMORY_TAG_GAME);
 
 	//orthogonal camera:
-	out_game->camera = ortho_camera_create(CONFIG_WINDOW_WIDTH, CONFIG_WINDOW_HEIGHT, 0.01f, 500.0f);
-	//out_game->camera = camera_create(90.0f, 0.01f, 500.0f, CONFIG_WINDOW_WIDTH, CONFIG_WINDOW_HEIGHT);
+	//out_game->camera = ortho_camera_create(CONFIG_WINDOW_WIDTH, CONFIG_WINDOW_HEIGHT, 0.01f, 500.0f);
+	out_game->camera = camera_create(90.0f, 0.01f, 500.0f, CONFIG_WINDOW_WIDTH, CONFIG_WINDOW_HEIGHT);
 
 	return TRUE;
 }

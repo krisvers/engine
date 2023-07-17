@@ -58,6 +58,7 @@ b8 game_update(game_t * instance, f64 delta_time) {
 	(void) delta_time;
 
 	float base_speed = 5.0f;
+	float scroll_speed = 30.0f;
 	float slow_speed = 1.0f;
 	float fast_speed = 20.0f;
 	float speed = base_speed;
@@ -124,6 +125,11 @@ b8 game_update(game_t * instance, f64 delta_time) {
 	if (this->camera->transform.rotation[0] < -85) {
 		this->camera->transform.rotation[0] = -85;
 	}
+
+	i8 scroll[2];
+	input_get_mouse_scroll(&scroll[0], &scroll[1]);
+	vec3_add(this->camera->transform.position, this->camera->transform.position, (vec3) { forward[0] * speed * delta_time * scroll_speed * scroll[1], forward[1] * speed * delta_time * scroll_speed * scroll[1], forward[2] * speed * delta_time * scroll_speed * scroll[1] });
+	vec3_add(this->camera->transform.position, this->camera->transform.position, (vec3) { right[0] * speed * delta_time * scroll_speed * scroll[0], right[1] * speed * delta_time * scroll_speed * scroll[0], right[2] * speed * delta_time * scroll_speed * scroll[0] });
 
 	return TRUE;
 }

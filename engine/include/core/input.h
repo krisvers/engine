@@ -201,6 +201,7 @@ b8 KAPI input_get_mouse_button_down(mouse_buttons_enum mb);
 b8 KAPI input_get_mouse_button_up(mouse_buttons_enum mb);
 void KAPI input_get_mouse_pos(i32 * x, i32 * y);
 void KAPI input_get_mouse_delta(i16 * x, i16 * y);
+void KAPI input_get_mouse_scroll(i8 * dx, i8 * dy);
 
 void KAPI input_set_cursor_state(cursor_state_enum state);
 cursor_state_enum KAPI input_get_cursor_state(void);

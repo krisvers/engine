@@ -10,7 +10,6 @@
 #include <core/logger.h>
 #include <core/mem.h>
 #include <math/linmath.h>
-#include <containers/vec.h>
 #include <containers/camera.h>
 #include <containers/mesh.h>
 #include <containers/vertex.h>
@@ -135,45 +134,6 @@ static b8 opengl_compile_shaders(void) {
 #define MAX_VERTICES 1024
 #define MAX_INDICES 8192
 
-#define VERTICES_NUM 8
-vertex_t vertices[VERTICES_NUM] = {
-	{ { 0, 0, 0 }, { 0, 0, 0 } },
-	{ { 0, 1, 0 }, { 1, 0.3, 0 } },
-	{ { 1, 0, 0 }, { 0, 1, 0.3 } },
-	{ { 1, 1, 0 }, { 0.3, 0, 1 } },
-	{ { 0, 0, -1 }, { 1, 1, 1 } },
-	{ { 0, 1, -1 }, { 1, 0, 1 } },
-	{ { 1, 0, -1 }, { 0, 1, 1 } },
-	{ { 1, 1, -1 }, { 1, 1, 0 } },
-};
-
-#define INDICES_NUM 36
-u32 indices[INDICES_NUM] = {
-	// back
-	0, 1, 2,
-	2, 1, 3,
-
-	// front
-	4, 6, 5,
-	6, 7, 5,
-
-	// bottom
-	0, 2, 6,
-	0, 6, 4,
-
-	// top
-	1, 5, 7,
-	1, 7, 3,
-
-	// left
-	4, 5, 1,
-	4, 1, 0,
-
-	// right
-	2, 3, 7,
-	2, 7, 6,
-};
-
 b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * application_name, platform_state_t * pstate) {
 	if (!opengl_load_shaders()) {
 		KERROR("[opengl_renderer_backend_init(backend, application_name, pstate)]");
@@ -200,14 +160,41 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 	
 	glVertexAttribPointer(0, VERTEX_POSITION_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), VERTEX_POSITION_OFFSET);
 	glVertexAttribPointer(1, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const void *) VERTEX_COLOR_OFFSET);
+	glVertexAttribPointer(2, VERTEX_UV_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const void *) VERTEX_UV_OFFSET);
+	glVertexAttribPointer(3, VERTEX_TEX_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const void *) VERTEX_TEX_OFFSET);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
 	glEnable(GL_CULL_FACE);
 
 	context.mvp = glGetUniformLocation(context.shader, "in_mvp");
+
+	unsigned char bitmap[9 * 4] = {
+		0x00, 0x00, 0x00, 0xFF,
+		0xFF, 0x00, 0x00, 0xFF,
+		0xFF, 0xFF, 0x00, 0xFF,
+		0xFF, 0xFF, 0xFF, 0xFF,
+		0x00, 0xFF, 0x00, 0xFF,
+		0x00, 0xFF, 0xFF, 0xFF,
+		0x00, 0x00, 0xFF, 0xFF,
+		0xFF, 0xFF, 0xFF, 0xFF,
+		0xFF, 0xFF, 0xFF, 0xFF,
+	};
+
+	glGenTextures(1, &context.texture);
+	glBindTexture(GL_TEXTURE_2D, context.texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 3, 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	return TRUE;
 }
 
@@ -257,6 +244,7 @@ b8 opengl_renderer_backend_frame_begin(renderer_backend_t * backend, render_pack
 	mat4x4_mul(mvp, mvp, m);
 
 	glUniformMatrix4fv(context.mvp, 1, GL_FALSE, &mvp[0][0]);
+	glBindTexture(GL_TEXTURE_2D, context.texture);
 	return TRUE;
 }
 

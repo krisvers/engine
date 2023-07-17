@@ -1,5 +1,8 @@
-Log File Creation Time: Sun Jul 16 23:27:35 2023
+Log File Creation Time: Sun Jul 16 22:11:59 2023
 
+[FATAL]: test message 3.140000
+[ERROR]: test message 3.140000
+[WARN]: test message 3.140000
 [INFO]: test message 3.140000
 [INFO]: System memory usage:
  UNKNOWN          0.00	  B
