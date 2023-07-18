@@ -1,17 +1,18 @@
-Log File Creation Time: Tue Jul 18 02:20:07 2023
+Log File Creation Time: Tue Jul 18 15:25:59 2023
 
 INFO: ./src/core/application.c:45 test message 3.140000
+INFO: ./src/platform/platform_linux.c:94 Highest supported OpenGL version: 4.6 (Core Profile) Mesa 23.1.3
 INFO: ./src/core/application.c:101 System memory usage:
  UNKNOWN          0.00	  B
  ARRAY            0.00	  B
- DYNAMIC_ARRAY    192.00	  B
+ DYNAMIC_ARRAY    256.00	  B
  DICTIONARY       0.00	  B
  RING_QUEUE       0.00	  B
  BST              0.00	  B
  STRING           0.00	  B
  APPLICATION      0.00	  B
  JOB              0.00	  B
- TEXTURE          0.00	  B
+ TEXTURE          1.09	MiB
  MATERIAL         0.00	  B
  RENDERER         555.00	  B
  GAME             4.00	  B

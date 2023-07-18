@@ -29,7 +29,13 @@ typedef struct textureAtlas {
 	dynarray_t * textures;
 } texture_atlas_t;
 
+#define texture_atlas_at(atlas, i) (&((texture_t *) atlas->textures->array)[i])
+
 texture_t KAPI * texture_create(u32 width, u32 height, u64 bytesize, u8 * buffer);
+texture_t KAPI * texture_create_empty(void);
 void KAPI texture_destroy(texture_t * texture);
+texture_atlas_t KAPI * texture_atlas_create(void);
+void KAPI texture_atlas_stitch(texture_atlas_t * atlas, texture_t * texture);
+void KAPI texture_atlas_destroy(texture_atlas_t * atlas);
 
 #endif

@@ -191,7 +191,10 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 	tga_empty(&tga);
 	tga_load(&tga, &file);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tga.texture.width, tga.texture.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, tga.texture.buffer);
+	texture_atlas_t * atlas = texture_atlas_create();
+	texture_atlas_stitch(atlas, &tga.texture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_atlas_at(atlas, 0)->width, texture_atlas_at(atlas, 0)->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, atlas->buffer);
 
 	file_close(&file);
 

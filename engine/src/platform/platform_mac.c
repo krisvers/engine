@@ -60,8 +60,8 @@ b8 platform_startup(
 	#ifndef KPLATFORM_OPENGL
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	#else
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	#endif
@@ -82,6 +82,7 @@ b8 platform_startup(
 	}
 
 	glViewport(0, 0, w, h);
+	KLOG("Highest supported OpenGL version: %s", glGetString(GL_VERSION));
 	#endif
 	glfwSetWindowPos(state->glfw_win, x, y);
 	glfwSetKeyCallback(state->glfw_win, glfw_key_handler);

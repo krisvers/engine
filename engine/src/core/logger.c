@@ -50,7 +50,9 @@ void KAPI log_set_logfile(char * filename, log_level_enum level) {
 
 void KAPI log_unset_logfile(void) {
 	logfile = NULL;
-	fclose(logfp);
+	if (logfp != NULL) {
+		fclose(logfp);
+	}
 	log_to_files = FALSE;
 }
 
