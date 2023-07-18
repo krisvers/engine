@@ -140,7 +140,7 @@ b8 application_run(void) {
 		packet.delta_time = delta;
 		packet.mesh = mesh_create();
 		vertex_t a = {
-			.position = { -frame_count, -1, 0 },
+			.position = { -1, -1, 0 },
 			.color = { 1, 1, 0 },
 			.uv = { 0, 0 },
 			.tex = 1,

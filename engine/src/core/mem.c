@@ -82,6 +82,13 @@ void * kmemcpy(void * dst, void * src, u64 size) {
 	return platform_memcpy(dst, src, size);
 }
 
+void * krmemcpy(void * dst, void * src, u64 nmemb, u64 size) {
+	for (u64 i = 0; i < nmemb; ++i) {
+		kmemcpy(dst + (i * size), src + (i * size), size);
+	}
+	return dst;
+}
+
 void * kmemset(void * dst, i32 value, u64 size) {
 	return platform_memset(dst, value, size);
 }

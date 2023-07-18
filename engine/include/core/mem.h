@@ -35,6 +35,7 @@ void KAPI * kmalloc(u64 size, memory_tag_enum tag);
 void KAPI kfree(void * ptr, u64 size, memory_tag_enum tag);
 void KAPI * kmemzero(void * ptr, u64 size);
 void KAPI * kmemcpy(void * dst, void * src, u64 size);
+void KAPI * krmemcpy(void * dst, void * src, u64 nmemb, u64 size);
 void KAPI * kmemset(void * dst, i32 value, u64 size);
 
 char KAPI * memory_get_usage_cstr(void);

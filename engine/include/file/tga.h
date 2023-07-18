@@ -68,6 +68,7 @@ typedef struct tga {
 
 tga_t KAPI * tga_create(texture_t * texture);
 tga_t KAPI * tga_create_empty(void);
+void KAPI tga_empty(tga_t * tga);
 void KAPI tga_load(tga_t * tga, file_t * file);
 void KAPI tga_save(tga_t * tga, file_t * file);
 void KAPI tga_destroy(tga_t * tga);

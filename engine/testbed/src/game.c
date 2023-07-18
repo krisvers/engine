@@ -21,6 +21,21 @@ static b8 on_key_press(u16 code, void * sender, void * listener, event_context_t
 		case KEYCODE_F1:
 			KLOG("%s", memory_get_usage_cstr());
 			break;
+		case KEYCODE_NUMPAD_5:
+			this->camera->transform.rotation[0] = 0; this->camera->transform.rotation[1] = 0; this->camera->transform.rotation[2] = 0;
+			break;
+		case KEYCODE_NUMPAD_6:
+			this->camera->transform.rotation[1] += 45;
+			break;
+		case KEYCODE_NUMPAD_4:
+			this->camera->transform.rotation[1] += -45;
+			break;
+		case KEYCODE_NUMPAD_8:
+			this->camera->transform.rotation[0] += 45;
+			break;
+		case KEYCODE_NUMPAD_2:
+			this->camera->transform.rotation[0] += -45;
+			break;
 		default:
 			break;
 	}

@@ -9,10 +9,13 @@
 #include <glad/glad.h>
 #include <core/logger.h>
 #include <core/mem.h>
+#include <core/file.h>
 #include <math/linmath.h>
 #include <containers/camera.h>
 #include <containers/mesh.h>
 #include <containers/vertex.h>
+#include <containers/texture.h>
+#include <file/tga.h>
 #include <stdio.h>
 
 static opengl_context_t context;
@@ -173,25 +176,33 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 
 	context.mvp = glGetUniformLocation(context.shader, "in_mvp");
 
-	unsigned char bitmap[9 * 4] = {
-		0x00, 0x00, 0x00, 0xFF,
-		0xFF, 0x00, 0x00, 0xFF,
-		0xFF, 0xFF, 0x00, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF,
-		0x00, 0xFF, 0x00, 0xFF,
-		0x00, 0xFF, 0xFF, 0xFF,
-		0x00, 0x00, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF,
-	};
-
 	glGenTextures(1, &context.texture);
 	glBindTexture(GL_TEXTURE_2D, context.texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 3, 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap);
+
+	file_t file;
+	file_open(&file, "./assets/test.tga", FILE_READ);
+	file_read(&file);
+	tga_t tga;
+	tga.texture.buffer = NULL;
+	tga_empty(&tga);
+	tga_load(&tga, &file);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tga.texture.width, tga.texture.height, 0, GL_BGRA, GL_UNSIGNED_BYTE, tga.texture.buffer);
+
+	file_close(&file);
+
+	file_open(&file, "./assets/written.tga", FILE_WRITE);
+	tga_save(&tga, &file);
+
+	file_write(&file);
+	file_close(&file);
+
+	tga_empty(&tga);
+
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 

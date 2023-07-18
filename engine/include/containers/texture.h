@@ -4,11 +4,21 @@
 #include <defines.h>
 #include <containers/dynarray.h>
 
+typedef enum textureFormatEnum {
+	TEXTURE_FORMAT_RGB,
+	TEXTURE_FORMAT_BGR,
+	TEXTURE_FORMAT_ARGB,
+	TEXTURE_FORMAT_ABGR,
+	TEXTURE_FORMAT_RGBA,
+	TEXTURE_FORMAT_BGRA,
+} texture_format_enum;
+
 typedef struct texture {
 	u64 bytesize;
 	u32 width;
 	u32 height;
 	u8 * buffer;
+	texture_format_enum format;
 } texture_t;
 
 typedef struct textureAtlas {
