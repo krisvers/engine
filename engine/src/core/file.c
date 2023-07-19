@@ -23,7 +23,7 @@ void file_close(file_t * file) {
 		kfree(file->path, kstrlen(file->path) + 1, MEMORY_TAG_STRING);
 	}
 	platform_file_close(file->fd);
-	file->fd = 0;
+	kmemzero(&file->fd, sizeof(file_desc_t));
 }
 
 void file_length(file_t * file) {

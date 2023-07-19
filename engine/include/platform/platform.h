@@ -33,11 +33,15 @@ void platform_console_write_error(const char * message, u8 color);
 f64 platform_get_absolute_time(void);
 void platform_sleep(u64 ms);
 
-#ifdef KPLATFORM_WINDOWS
-#include <windows.h>
-typedef HANDLE file_desc_t;
+#if defined(KPLATFORM_WINDOWS)
+	#include <windows.h>
+	typedef HANDLE file_desc_t;
+#elif defined(KPLATFORM_LINUX)
+	typedef struct {
+		int fildes;
+	} file_desc_t;
 #else
-typedef FILE * file_desc_t;
+#error "Unsupported platform file API"
 #endif
 
 file_desc_t platform_file_open(char * filename, u8 op);

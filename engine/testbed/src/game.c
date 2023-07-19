@@ -71,7 +71,7 @@ b8 game_initialize(game_t * instance) {
 
 	KLOG("%zu", sizeof(long long));
 
-	file_open(&global_file, "assets/config.txt", FILE_READB);
+	file_open(&global_file, "assets/config.txt", FILE_READ);
 	file_read(&global_file);
 	file_stringify(&global_file);
 	while (global_file.buffer[0] != 'q') {

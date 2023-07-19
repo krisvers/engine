@@ -22,10 +22,15 @@
 #include <errno.h>
 #include <stdio.h>
 
+/* POSIX */
 #include <sys/time.h>
-#include <sys/stat.h>
 #include <time.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
+
+static void posix_last_error(void);
 
 static void glfw_error_handler(int error, const char * desc);
 static void glfw_key_handler(GLFWwindow * window, int key, int scancode, int action, int mods);
@@ -203,40 +208,52 @@ void platform_set_cursor(u8 value) {
 	}
 }
 
-static const char * file_operation_cstrs[] = {
-	"r",
-	"w",
-	"rb",
-	"wb",
-	"a",
-	"ab",
+static int file_operation_map[] = {
+	O_RDONLY,
+	O_RDWR,
+	O_RDONLY,
+	O_RDWR,
+	O_APPEND,
+	O_APPEND,
 };
 
 file_desc_t platform_file_open(char * filename, u8 op) {
-	FILE * fp = fopen(filename, file_operation_cstrs[op]);
-	if (fp == NULL) {
-		KERROR("[platform_file_open(filename, op)]");
-		KERROR("failed to open file at %s", filename);
-		return NULL;
-	}
+	file_desc_t fp;
+	platform_memzero(&fp, sizeof(file_desc_t));
 
-	return fp;
+	fp.fildes = open(filename, file_operation_map[op]);
+	if (fp.fildes <= -1) {
+		KERROR("[platform_file_open(filename, op)]");
+		KERROR("failed to open file %s", filename);
+		posix_last_error();
+	}
 }
 
 void platform_file_close(file_desc_t fp) {
-	if (fp == NULL) {
-		KERROR("[platform_file_close(fp)]");
-		KERROR("given file descriptor does not describe a file");
+	if (close(fp.fildes) != 0) {
+		posix_last_error();
 		return;
 	}
-
-	fclose(fp);
+	fp.fildes = -1;
 }
 
 void platform_file_read(file_desc_t fp, u64 length, u8 * buffer) {
-	fseek(fp, 0L, SEEK_SET);
-	u64 res = fread(buffer, length, 1, fp);
-	if (res != 1 && res != length) {
+	// reset file offset
+	if (lseek(fp.fildes, 0L, SEEK_SET) == -1) {
+		KERROR("[platform_file_read(fp, length, buffer)]");
+		KERROR("failed to seek to file start");
+		return;
+	}
+	if (length > 0x7FFFF000) {
+		if (read(fp.fildes, buffer, 0x7FFFF000) != 0x7FFFF000) {
+			KERROR("[platform_file_read(fp, length, buffer)]");
+			KERROR("failure whilst reading file");
+			return;
+		}
+		length -= 0x7FFFF000;
+	}
+
+	if (read(fp.fildes, buffer, length) != length) {
 		KERROR("[platform_file_read(fp, length, buffer)]");
 		KERROR("failure whilst reading file");
 		return;
@@ -244,8 +261,20 @@ void platform_file_read(file_desc_t fp, u64 length, u8 * buffer) {
 }
 
 void platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
-	fseek(fp, 0L, SEEK_SET);
-	if (fwrite(buffer, length, 1, fp) != 1) {
+	if (lseek(fp.fildes, 0L, SEEK_SET) == -1) {
+		KERROR("[platform_file_read(fp, length, buffer)]");
+		KERROR("failed to seek to file start");
+		return;
+	}
+	if (length > 0x7FFFF000) {
+		if (write(fp.fildes, buffer, 0x7FFFF000) != 0x7FFFF000) {
+			KERROR("[platform_file_read(fp, length, buffer)]");
+			KERROR("failure whilst reading file");
+			return;
+		}
+		length -= 0x7FFFF000;
+	}
+	if (write(fp.fildes, buffer, length) != length) {
 		KERROR("[platform_file_write(fp, length, buffer)]");
 		KERROR("failure whilst writing to file");
 		return;
@@ -253,15 +282,17 @@ void platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
 }
 
 u64 platform_file_length(file_desc_t fp) {
-	if (fp == NULL) {
-		KERROR("[platform_file_length(fp)]");
-		KERROR("given file descriptor does not describe a file");
+	i64 len = lseek(fp.fildes, 0L, SEEK_END);
+	if (len == -1) {
+		KERROR("[platform_file_read(fp, length, buffer)]");
+		KERROR("failed to seek to file end");
 		return 0;
 	}
-
-	fseek(fp, 0L, SEEK_END);
-	u64 len = ftell(fp);
-	fseek(fp, 0L, SEEK_SET);
+	if (lseek(fp.fildes, 0L, SEEK_SET) == -1) {
+		KERROR("[platform_file_read(fp, length, buffer)]");
+		KERROR("failed to seek to file start");
+		return 0;
+	}
 
 	return len;
 }
@@ -269,12 +300,7 @@ u64 platform_file_length(file_desc_t fp) {
 f64 platform_file_last_modification(file_desc_t fp, char * path) {
 	struct stat st;
 
-	int fd = fileno(fp);
-	if (fd == -1) {
-		goto platform_file_last_modification_path_fallback;
-	}
-
-	int res = fstat(fd, &st);
+	int res = fstat(fp.fildes, &st);
 	if (res == -1) {
 		goto platform_file_last_modification_path_fallback;
 	}
@@ -497,6 +523,12 @@ static void glfw_window_close_handler(GLFWwindow * window) {
 
 static void glfw_window_resize_handler(GLFWwindow * window, int w, int h) {
 	renderer_on_resize(w, h);
+}
+
+/* POSIX helper functions */
+
+static void posix_last_error(void) {
+	fprintf(stderr, "errno: %i\n%s", errno, strerror(errno));
 }
 
 #endif
