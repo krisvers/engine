@@ -257,6 +257,10 @@ u64 platform_file_length(file_desc_t fp) {
 	return len;
 }
 
+f64 platform_file_last_modification(file_desc_t fp, char * path) {
+	KERROR("platform_file_last_modification not implemented");
+}
+
 void platform_get_required_extension_names(dynarray_t * array) {
 	u32 glfw_max_extensions = 16;
 	const char ** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_max_extensions);
@@ -334,7 +338,7 @@ static keycodes_enum glfw_key_map(int key) {
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(TAB);
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(BACKSPACE);
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(INSERT);
-		KEYCODE_MAP_GLFW_KEY_SAME_NAME(DELETE);
+		KEYCODE_MAP_GLFW_KEY_SAME_NAME(DEL);
 
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(RIGHT);
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(LEFT);

@@ -23,6 +23,7 @@
 #include <stdio.h>
 
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -233,11 +234,13 @@ void platform_file_close(file_desc_t fp) {
 }
 
 void platform_file_read(file_desc_t fp, u64 length, u8 * buffer) {
-	if (fread(buffer, length, 1, fp) != 1) {
+	u64 res = fread(buffer, length, 1, fp);
+	if (res != 1 && res != length) {
 		KERROR("[platform_file_read(fp, length, buffer)]");
 		KERROR("failure whilst reading file");
 		return;
 	}
+	fseek(fp, 0L, SEEK_SET);
 }
 
 void platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
@@ -246,6 +249,7 @@ void platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
 		KERROR("failure whilst writing to file");
 		return;
 	}
+	fseek(fp, 0L, SEEK_SET);
 }
 
 u64 platform_file_length(file_desc_t fp) {
@@ -260,6 +264,33 @@ u64 platform_file_length(file_desc_t fp) {
 	fseek(fp, 0L, SEEK_SET);
 
 	return len;
+}
+
+f64 platform_file_last_modification(file_desc_t fp, char * path) {
+	struct stat st;
+
+	int fd = fileno(fp);
+	if (fd == -1) {
+		goto platform_file_last_modification_path_fallback;
+	}
+
+	int res = fstat(fd, &st);
+	if (res == -1) {
+		goto platform_file_last_modification_path_fallback;
+	}
+	goto platform_file_last_modification_path_fallback_end;
+
+platform_file_last_modification_path_fallback:
+	res = stat(path, &st);
+	if (res == -1) {
+		KERROR("[platform_file_last_modification(fp, path)]");
+		KERROR("failed to obtain file status from fp and path %s", path);
+		return -1;
+	}
+platform_file_last_modification_path_fallback_end:;
+
+	f64 mod = st.st_mtim.tv_nsec / 1000.0f + st.st_mtim.tv_sec * 1000;
+	return mod;
 }
 
 #ifdef KPLATFORM_VULKAN

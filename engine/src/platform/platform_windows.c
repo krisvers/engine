@@ -3,6 +3,7 @@
 #if KPLATFORM_WINDOWS
 
 #include <windows.h>
+#include <winbase.h>
 #include <windowsx.h>
 #ifdef KPLATFORM_VULKAN
 #include <renderer/vulkan/vulkan_types.h>
@@ -21,12 +22,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <handleapi.h>
+#include <fileapi.h>
+#include <errhandlingapi.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <renderer/frontend.h>
 
 #ifdef KPLATFORM_VULKAN
 #include <renderer/vulkan/vulkan_types.h>
 #include <vulkan/vulkan.h>
 #endif
+
+/* glfw static funcs */
 
 static void glfw_error_handler(int error, const char * desc);
 static void glfw_key_handler(GLFWwindow * window, int key, int scancode, int action, int mods);
@@ -35,6 +43,10 @@ static void glfw_mouse_button_handler(GLFWwindow * window, int button, int actio
 static void glfw_mouse_scroll_handler(GLFWwindow * window, double dx, double dy);
 static void glfw_window_close_handler(GLFWwindow * window);
 static void glfw_window_resize_handler(GLFWwindow * window, int w, int h);
+
+/* win32 helper funcs */
+static TCHAR win32_last_error[256];
+static void win32_last_error_cstr(void);
 
 typedef struct internalState {
 	GLFWwindow * glfw_win;
@@ -235,64 +247,116 @@ void platform_set_cursor(u8 value) {
 
 /* file io */
 
-static const char * file_operation_cstrs[] = {
-	"rb",
-	"wb",
-	"rb",
-	"wb",
-	"ab",
-	"ab",
+static DWORD file_operation_map[] = {
+	GENERIC_READ,
+	GENERIC_WRITE | GENERIC_READ,
+	GENERIC_READ,
+	GENERIC_WRITE | GENERIC_READ,
+	GENERIC_WRITE | GENERIC_READ,
+	GENERIC_WRITE | GENERIC_READ,
 };
 
 file_desc_t platform_file_open(char * filename, u8 op) {
-	FILE * fp = fopen(filename, file_operation_cstrs[op]);
-	if (fp == NULL) {
+	DWORD creation;
+	if (op == FILE_WRITE || op == FILE_WRITEB || op == FILE_APPEND || op == FILE_APPEND) {
+		creation = CREATE_ALWAYS;
+	} else {
+		creation = OPEN_EXISTING;
+	}
+	HANDLE file = CreateFileA((LPCSTR) filename, file_operation_map[op], FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, creation, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (file == INVALID_HANDLE_VALUE) {
 		KERROR("[platform_file_open(filename, op)]");
-		KERROR("failed to open file at %s", filename);
-		return NULL;
+		KERROR("failed to open file %s", filename);
+		win32_last_error_cstr();
 	}
 
-	return fp;
+	return file;
 }
 
 void platform_file_close(file_desc_t fp) {
-	if (fp == NULL) {
+	if (fp == INVALID_HANDLE_VALUE) {
 		KERROR("[platform_file_close(fp)]");
 		KERROR("given file descriptor does not describe a file");
+		win32_last_error_cstr();
 		return;
 	}
 
-	fclose(fp);
+	if (CloseHandle(fp) == 0) {
+		KERROR("[platform_file_close(fp)]");
+		KERROR("failed to close file");
+		win32_last_error_cstr();
+	}
 }
 
 void platform_file_read(file_desc_t fp, u64 length, u8 * buffer) {
-	if (fread(buffer, length, 1, fp) != 1) {
+	u32 read = 0;
+	BOOL res = ReadFile(fp, buffer, length, &read, NULL);
+	if (res == 0) {
 		KERROR("[platform_file_read(fp, length, buffer)]");
 		KERROR("failure whilst reading file");
-		return;
+		win32_last_error_cstr();
+	}
+	LARGE_INTEGER move;
+	move.QuadPart = 0;
+	res = SetFilePointerEx(fp, move, NULL, FILE_BEGIN);
+	if (res == 0) {
+		KERROR("[platform_file_read(fp, length, buffer)]");
+		KERROR("failed to seek to start of the file");
+		win32_last_error_cstr();
 	}
 }
 
 void platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
-	if (fwrite(buffer, length, 1, fp) != 1) {
+	BOOL res = WriteFile(fp, buffer, length, NULL, NULL);
+	if (res == 0) {
 		KERROR("[platform_file_write(fp, length, buffer)]");
 		KERROR("failure whilst writing to file");
-		return;
+		win32_last_error_cstr();
+	}
+	LARGE_INTEGER move;
+	move.QuadPart = 0;
+	res = SetFilePointerEx(fp, move, NULL, FILE_BEGIN);
+	if (res == 0) {
+		KERROR("[platform_file_read(fp, length, buffer)]");
+		KERROR("failed to seek to start of the file");
+		win32_last_error_cstr();
 	}
 }
 
 u64 platform_file_length(file_desc_t fp) {
-	if (fp == NULL) {
+	LARGE_INTEGER move;
+	move.QuadPart = 0;
+	BOOL res = SetFilePointerEx(fp, move, NULL, FILE_BEGIN);
+	if (res == 0) {
+		KERROR("[platform_file_read(fp, length, buffer)]");
+		KERROR("failed to seek to start of the file");
+		win32_last_error_cstr();
+	}
+	platform_sleep(1);
+	LARGE_INTEGER len;
+	if (GetFileSizeEx(fp, &len) == 0) {
 		KERROR("[platform_file_length(fp)]");
-		KERROR("given file descriptor does not describe a file");
-		return 0;
+		KERROR("failed to retrieve file length");
+		win32_last_error_cstr();
 	}
 
-	fseek(fp, 0L, SEEK_END);
-	u64 len = ftell(fp);
-	fseek(fp, 0L, SEEK_SET);
+	return len.QuadPart;
+}
 
-	return len;
+f64 platform_file_last_modification(file_desc_t fp, char * path) {
+	FILETIME mod_time;
+	BOOL res = GetFileTime(fp, NULL, NULL, &mod_time);
+	if (res == 0) {
+		KERROR("[platform_file_last_modification(fp, path)]");
+		KERROR("failed to obtain last modification time from file at path %s", path);
+		win32_last_error_cstr();
+		return -1;
+	}
+
+	u64 time = 0;
+	((LPDWORD) &time)[0] = mod_time.dwLowDateTime; ((LPDWORD) &time)[1] = mod_time.dwHighDateTime;
+	f64 mod = time * 10;
+	return mod;
 }
 
 /* vulkan */
@@ -379,9 +443,10 @@ static keycodes_enum glfw_key_map(int key) {
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(BACKSPACE);
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(INSERT);
 
-		// KEYCODE_MAP_GLFW_KEY_SAME_NAME(DELETE);
-		// this line of code causes mingw gcc to hallucinate that the passed argument was `(` and not `DELETE`
-		KEYCODE_MAP_GLFW_KEY(DELETE, DELETE);
+		// manual intervention
+		// DELETE is a macro defined in <winnt.h> on Windows
+		// this reduces name collision
+		case GLFW_KEY_DELETE: return KEYCODE_DEL;
 
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(RIGHT);
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(LEFT);
@@ -493,6 +558,15 @@ static void glfw_window_close_handler(GLFWwindow * window) {
 
 static void glfw_window_resize_handler(GLFWwindow * window, int w, int h) {
 	renderer_on_resize(w, h);
+}
+
+static void win32_last_error_cstr(void) {
+	u64 len = FormatMessageA(
+		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR) win32_last_error, 256, NULL
+	);
+	wprintf(L"win32 error: %hs\n", win32_last_error);
 }
 
 #endif

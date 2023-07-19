@@ -18,7 +18,11 @@ typedef struct file {
 	file_desc_t fd;
 	file_operation_enum op;
 	u8 * buffer;
+	char * path;
 	u64 length;
+	f64 last_mod;
+	b8 modified;
+	b8 stringified;
 } file_t;
 
 void KAPI file_open(file_t * file, char * filename, file_operation_enum op);
@@ -28,5 +32,10 @@ void KAPI file_read(file_t * file);
 void KAPI file_write(file_t * file);
 void KAPI file_resize(file_t * file, u64 length);
 void KAPI file_empty(file_t * file);
+void KAPI file_last_mod(file_t * file);
+void KAPI file_stringify(file_t * file);
+void KAPI file_destringify(file_t * file);
+file_t KAPI * file_alloc(void);
+void KAPI file_dealloc(file_t * file);
 
 #endif

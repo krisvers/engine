@@ -32,6 +32,7 @@ typedef void * vptr;
 		#error "64-bit windows required!"
 	#endif
 #elif defined(__linux__) || defined(__gnu_linux__)
+	#define _POSIX_C_SOURCE 200809L
 	#define KPLATFORM_LINUX 1
 	#define variable_args_list __builtin_va_list
 	#if defined(__ANDROID__)

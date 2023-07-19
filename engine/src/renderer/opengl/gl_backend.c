@@ -23,7 +23,7 @@
 #include <malloc.h>
 #define alloca _malloca
 #else
-#include <stdlib.h>
+#include <alloca.h>
 #endif
 
 static opengl_context_t context;

@@ -24,6 +24,8 @@ dynarray_t KAPI * _dynarray_pop_at(dynarray_t * array, u64 index, void * dst);
 #define DYNARRAY_DEFAULT_CAPACITY 1
 #define DYNARRAY_RESIZE_FACTOR 2
 
+#define dynarray_at(array, i, type) ((type *) array->array)[i]
+
 #define dynarray_create(type) \
 	_dynarray_create(DYNARRAY_DEFAULT_CAPACITY, sizeof(type));
 

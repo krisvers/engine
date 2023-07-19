@@ -4,10 +4,6 @@
 #include <defines.h>
 #include <stdio.h>
 
-typedef FILE * file_desc_t;
-
-#include <core/file.h>
-
 typedef struct platformState {
 	void * internal_state;
 } platform_state_t;
@@ -37,10 +33,18 @@ void platform_console_write_error(const char * message, u8 color);
 f64 platform_get_absolute_time(void);
 void platform_sleep(u64 ms);
 
+#ifdef KPLATFORM_WINDOWS
+#include <windows.h>
+typedef HANDLE file_desc_t;
+#else
+typedef FILE * file_desc_t;
+#endif
+
 file_desc_t platform_file_open(char * filename, u8 op);
 void platform_file_close(file_desc_t fp);
 void platform_file_read(file_desc_t fp, u64 length, u8 * buffer);
 void platform_file_write(file_desc_t fp, u64 length, u8 * buffer);
 u64 platform_file_length(file_desc_t fp);
+f64 platform_file_last_modification(file_desc_t fp, char * path);
 
 #endif

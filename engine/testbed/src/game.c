@@ -5,6 +5,7 @@
 #include <core/event.h>
 #include <core/file.h>
 #include <core/mem.h>
+#include <core/assert.h>
 #include <containers/dynarray.h>
 #include <containers/transform.h>
 #include <containers/camera.h>
@@ -13,6 +14,8 @@
 
 game_t * this = NULL;
 
+file_t global_file;
+
 static b8 on_key_press(u16 code, void * sender, void * listener, event_context_t ctx) {
 	switch (ctx.data.u16[0]) {
 		case KEYCODE_ESCAPE:
@@ -20,6 +23,9 @@ static b8 on_key_press(u16 code, void * sender, void * listener, event_context_t
 			break;
 		case KEYCODE_F1:
 			KLOG("%s", memory_get_usage_cstr());
+			break;
+		case KEYCODE_F12:
+			DEBUG_BREAK();
 			break;
 		case KEYCODE_NUMPAD_5:
 			this->camera->transform.rotation[0] = 0; this->camera->transform.rotation[1] = 0; this->camera->transform.rotation[2] = 0;
@@ -35,6 +41,9 @@ static b8 on_key_press(u16 code, void * sender, void * listener, event_context_t
 			break;
 		case KEYCODE_NUMPAD_2:
 			this->camera->transform.rotation[0] += -45;
+			break;
+		case KEYCODE_NUMPAD_0:
+			this->camera->transform.position[0] = 0; this->camera->transform.position[1] = 0; this->camera->transform.position[2] = 0;
 			break;
 		default:
 			break;
@@ -59,6 +68,23 @@ static b8 on_mouse_scroll(u16 code, void * sender, void * listener, event_contex
 
 b8 game_initialize(game_t * instance) {
 	this = instance;
+
+	KLOG("%zu", sizeof(long long));
+
+	file_open(&global_file, "assets/config.txt", FILE_READB);
+	file_read(&global_file);
+	file_stringify(&global_file);
+	while (global_file.buffer[0] != 'q') {
+		KLOG("config.txt:\n%s", global_file.buffer);
+		while (!global_file.modified) {
+			file_last_mod(&global_file);
+		}
+		global_file.modified = FALSE;
+		file_read(&global_file);
+		file_stringify(&global_file);
+	}
+	KLOG("config.txt:\n%s", global_file.buffer);
+	file_close(&global_file);
 
 	event_register(EVENT_CODE_KEY_PRESSED, (void *) game_initialize, on_key_press);
 	event_register(EVENT_CODE_MOUSE_MOVED, (void *) game_initialize, on_mouse_move);

@@ -122,7 +122,7 @@ char * memory_get_usage_cstr(void) {
 			amount = (float) stats.tagged_allocations[i];
 		}
 
-		i32 length = snprintf(memory_usage_buffer + offset, 1024 - offset, " %s    %.2f\t%s\n", memory_tag_strings[i], amount, unit);
+		i32 length = snprintf(memory_usage_buffer + offset, 1024 - offset, " %s    %.2f%s%s\n", memory_tag_strings[i], amount, (amount >= 100) ? "" : "\t", unit);
 		offset += length;
 	}
 	return memory_usage_buffer;

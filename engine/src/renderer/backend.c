@@ -9,6 +9,10 @@
 #include <renderer/opengl/backend.h>
 #endif
 
+#ifdef KPLATFORM_DIRECTX
+#include <renderer/directx/backend.h>
+#endif
+
 b8 renderer_backend_create(renderer_backends_enum type, platform_state_t * pstate, renderer_backend_t * out_backend) {
     out_backend->platform_state = pstate;
 
@@ -29,6 +33,16 @@ b8 renderer_backend_create(renderer_backends_enum type, platform_state_t * pstat
         out_backend->frame_begin = opengl_renderer_backend_frame_begin;
         out_backend->frame_end = opengl_renderer_backend_frame_end;
         out_backend->resize = opengl_renderer_backend_on_resize;
+        return TRUE;
+    }
+#endif
+#ifdef KPLATFORM_DIRECTX
+    if (type == RENDERER_BACKEND_DIRECTX) {
+        out_backend->init = directx_renderer_backend_init;
+        out_backend->deinit = directx_renderer_backend_deinit;
+        out_backend->frame_begin = directx_renderer_backend_frame_begin;
+        out_backend->frame_end = directx_renderer_backend_frame_end;
+        out_backend->resize = directx_renderer_backend_on_resize;
         return TRUE;
     }
 #endif
