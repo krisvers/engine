@@ -234,22 +234,22 @@ void platform_file_close(file_desc_t fp) {
 }
 
 void platform_file_read(file_desc_t fp, u64 length, u8 * buffer) {
+	fseek(fp, 0L, SEEK_SET);
 	u64 res = fread(buffer, length, 1, fp);
 	if (res != 1 && res != length) {
 		KERROR("[platform_file_read(fp, length, buffer)]");
 		KERROR("failure whilst reading file");
 		return;
 	}
-	fseek(fp, 0L, SEEK_SET);
 }
 
 void platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
+	fseek(fp, 0L, SEEK_SET);
 	if (fwrite(buffer, length, 1, fp) != 1) {
 		KERROR("[platform_file_write(fp, length, buffer)]");
 		KERROR("failure whilst writing to file");
 		return;
 	}
-	fseek(fp, 0L, SEEK_SET);
 }
 
 u64 platform_file_length(file_desc_t fp) {
@@ -385,7 +385,7 @@ static keycodes_enum glfw_key_map(int key) {
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(TAB);
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(BACKSPACE);
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(INSERT);
-		KEYCODE_MAP_GLFW_KEY_SAME_NAME(DELETE);
+		KEYCODE_MAP_GLFW_KEY(DELETE, DEL);
 
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(RIGHT);
 		KEYCODE_MAP_GLFW_KEY_SAME_NAME(LEFT);
