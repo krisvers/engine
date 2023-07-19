@@ -5,10 +5,10 @@
 #include <core/logger.h>
 
 tga_t * tga_create(texture_t * texture) {
-	tga_t * tga = kmalloc(sizeof(tga_t), MEMORY_TAG_TEXTURE);
+	tga_t * tga = (tga_t *) kmalloc(sizeof(tga_t), MEMORY_TAG_TEXTURE);
 	kmemcpy(&tga->texture, texture, sizeof(texture_t));
 
-	tga->texture.buffer = kmalloc(texture->bytesize, MEMORY_TAG_TEXTURE);
+	tga->texture.buffer = (u8 *) kmalloc(texture->bytesize, MEMORY_TAG_TEXTURE);
 	kmemcpy(tga->texture.buffer, texture->buffer, texture->bytesize);
 
 	kmemzero(&tga->header, TGA_HEADER_SIZE);
@@ -22,7 +22,7 @@ tga_t * tga_create(texture_t * texture) {
 }
 
 tga_t * tga_create_empty(void) {
-	tga_t * tga = kmalloc(sizeof(tga_t), MEMORY_TAG_TEXTURE);
+	tga_t * tga = (tga_t *) kmalloc(sizeof(tga_t), MEMORY_TAG_TEXTURE);
 	kmemzero(tga, sizeof(tga_t));
 
 	return tga;
@@ -31,7 +31,7 @@ tga_t * tga_create_empty(void) {
 void tga_empty(tga_t * tga) {
 	if (tga->texture.buffer != NULL) {
 		kfree(tga->texture.buffer, tga->texture.bytesize, MEMORY_TAG_TEXTURE);
-		tga->texture.buffer = NULL;
+		tga->texture.buffer = (u8 *) NULL;
 	}
 
 	kmemzero(tga, sizeof(tga_t));
@@ -57,7 +57,7 @@ void tga_load(tga_t * tga, file_t * file) {
 	tga->texture.width = tga->header.img_w;
 	tga->texture.height = tga->header.img_h;
 	tga->texture.bytesize = (tga->header.img_w * tga->header.img_h * (tga->header.bpp / 8));
-	tga->texture.buffer = kmalloc(tga->texture.bytesize, MEMORY_TAG_TEXTURE);
+	tga->texture.buffer = (u8 *) kmalloc(tga->texture.bytesize, MEMORY_TAG_TEXTURE);
 	tga->texture.format = TEXTURE_FORMAT_BGRA;
 	krmemcpy(tga->texture.buffer, file->buffer + TGA_HEADER_SIZE, tga->header.img_w, tga->header.img_h * (tga->header.bpp / 8));
 }

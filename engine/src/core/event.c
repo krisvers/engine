@@ -35,7 +35,7 @@ void event_deinit(void) {
 	for (u16 i = 0; i < MAX_MESSAGE_CODES; ++i) {
 		if (state.registered[i].events != NULL) {
 			dynarray_destroy(state.registered[i].events);
-			state.registered[i].events = NULL;
+			state.registered[i].events = (dynarray_t *) NULL;
 		}
 	}
 }
@@ -50,7 +50,7 @@ b8 event_register(u16 code, void * listener, event_signal_func callback) {
 	}
 
 	u64 registered_count = state.registered[code].events->length;
-	registered_event_t * events = state.registered[code].events->array;
+	registered_event_t * events = (registered_event_t *) state.registered[code].events->array;
 	for (u64 i = 0; i < registered_count; ++i) {
 		if (events[i].listener == listener) {
 			KWARN("[event_register(code, listener, callback)]");
@@ -62,7 +62,7 @@ b8 event_register(u16 code, void * listener, event_signal_func callback) {
 	registered_event_t event;
 	event.listener = listener;
 	event.callback = callback;
-	dynarray_push(state.registered[code].events, event);
+	dynarray_push(state.registered[code].events, event, registered_event_t);
 	
 	return TRUE;
 }
@@ -79,7 +79,7 @@ b8 event_unregister(u16 code, void * listener, event_signal_func callback) {
 	}
 
 	u64 registered_count = state.registered[code].events->length;
-	registered_event_t * events = state.registered[code].events->array;
+	registered_event_t * events = (registered_event_t *) state.registered[code].events->array;
 	for (u64 i = 0; i < registered_count; ++i) {
 		registered_event_t e = events[i];
 		if (e.listener == listener && e.callback == callback) {
@@ -105,7 +105,7 @@ b8 event_fire(u16 code, void * sender, event_context_t context) {
 	}
 
 	u64 registered_count = state.registered[code].events->length;
-	registered_event_t * events = state.registered[code].events->array;
+	registered_event_t * events = (registered_event_t *) state.registered[code].events->array;
 	for (u64 i = 0; i < registered_count; ++i) {
 		registered_event_t e = events[i];
 		if (e.callback(code, sender, e.listener, context)) {

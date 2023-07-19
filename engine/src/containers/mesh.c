@@ -5,7 +5,7 @@
 #include <math/linmath.h>
 
 mesh_t * mesh_create(void) {
-	mesh_t * mesh = kmalloc(sizeof(mesh_t), MEMORY_TAG_MESH);
+	mesh_t * mesh = (mesh_t *) kmalloc(sizeof(mesh_t), MEMORY_TAG_MESH);
 	mesh->vertices = dynarray_create(vertex_t);
 	mesh->indices = dynarray_create(indice_t);
 
@@ -23,7 +23,7 @@ void mesh_push_vertex(mesh_t * mesh, vertex_t * vertex) {
 }
 
 void mesh_push_vertex_value(mesh_t * mesh, vertex_t vertex) {
-	dynarray_push(mesh->vertices, vertex);
+	dynarray_push(mesh->vertices, vertex, vertex_t);
 }
 
 void mesh_pop_vertex(mesh_t * mesh, vertex_t * out_vertex) {
@@ -35,7 +35,7 @@ void mesh_push_indices(mesh_t * mesh, indice_t * indices) {
 }
 
 void mesh_push_indices_value(mesh_t * mesh, indice_t indices) {
-	dynarray_push(mesh->indices, indices);
+	dynarray_push(mesh->indices, indices, indice_t);
 }
 
 void mesh_pop_indices(mesh_t * mesh, indice_t * out_indices) {

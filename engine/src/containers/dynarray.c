@@ -4,7 +4,7 @@
 #include <defines.h>
 
 dynarray_t * _dynarray_create(u64 length, u64 stride) {
-	dynarray_t * new_array = kmalloc(sizeof(dynarray_t), MEMORY_TAG_DYNAMIC_ARRAY);
+	dynarray_t * new_array = (dynarray_t *) kmalloc(sizeof(dynarray_t), MEMORY_TAG_DYNAMIC_ARRAY);
 	new_array->array = kmalloc(length * stride, MEMORY_TAG_DYNAMIC_ARRAY);
 
 	new_array->capacity = length;
@@ -37,13 +37,13 @@ dynarray_t * _dynarray_push(dynarray_t * array, void * value_ptr) {
 		array = _dynarray_resize(array);
 	}
 
-	kmemcpy((void *) (array->array + array->length * array->stride), value_ptr, array->stride);
+	kmemcpy((void *) (((u64) array->array) + array->length * array->stride), value_ptr, array->stride);
 	++array->length;
 	return array;
 }
 
 void _dynarray_pop(dynarray_t * array, void * dst) {
-	kmemcpy(dst, (void *) (array->array + (array->length - 1) * array->stride), array->stride);
+	kmemcpy(dst, (void *) (((u64) array->array) + (array->length - 1) * array->stride), array->stride);
 	--array->length;
 }
 
@@ -54,12 +54,12 @@ dynarray_t * _dynarray_pop_at(dynarray_t * array, u64 index, void * dst) {
 		return array;
 	}
 
-	kmemcpy(dst, (void *) (array->array + (index * array->stride)), array->stride);
+	kmemcpy(dst, (void *) (((u64) array->array) + (index * array->stride)), array->stride);
 
 	if (index != array->length - 1) {
 		kmemcpy(
-			(void *) (array->array + (index + array->stride)),
-			(void *) (array->array + (index + 1) * array->stride),
+			(void *) (((u64) array->array) + (index + array->stride)),
+			(void *) (((u64) array->array) + (index + 1) * array->stride),
 			array->stride * (array->length - index)
 		);
 	}
@@ -80,13 +80,13 @@ dynarray_t * _dynarray_insert_at(dynarray_t * array, u64 index, void * value_ptr
 
 	if (index != array->length - 1) {
 		kmemcpy(
-			(void *) (array->array + (index + 1) * array->stride),
-			(void *) (array->array + (index * array->stride)),
+			(void *) (((u64) array->array) + (index + 1) * array->stride),
+			(void *) (((u64) array->array) + (index * array->stride)),
 			array->stride * (array->length - index)
 		);
 	}
 
-	kmemcpy((void *) (array->array + (index * array->stride)), value_ptr, array->stride);
+	kmemcpy((void *) (((u64) array->array) + (index * array->stride)), value_ptr, array->stride);
 
 	++array->length;
 	return array;

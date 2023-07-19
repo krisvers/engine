@@ -18,21 +18,24 @@
 #include <file/tga.h>
 #include <stdio.h>
 
+// TODO: re-fucking-factor this!
+#ifdef KPLATFORM_WINDOWS
+#include <malloc.h>
+#define alloca _malloca
+#else
+#include <stdlib.h>
+#endif
+
 static opengl_context_t context;
 
 vec3 position = { 0.0f, 0.0f, -5.0f };
 vec3 rotation = { 0, 0, 0 };
 vec3 scale = { 1, 1, 1 };
 
-char * shader_source_vert = NULL;
-u64 shader_source_vert_size = 0;
-char * shader_source_frag = NULL;
-u64 shader_source_frag_size = 0;
-
 #define SHADER_VERTEX_FILE "./assets/vertex.glsl"
 #define SHADER_FRAGMENT_FILE "./assets/fragment.glsl"
 
-static b8 opengl_load_shaders(void) {
+static b8 opengl_init_shaders(void) {
 	FILE * vertfp = fopen(SHADER_VERTEX_FILE, "rb");
 	if (vertfp == NULL) {
 		KERROR("[open_load_shaders()]");
@@ -57,8 +60,8 @@ static b8 opengl_load_shaders(void) {
 	fraglen = ftell(fragfp);
 	fseek(fragfp, 0L, SEEK_SET);
 
-	shader_source_vert = kmalloc(vertlen + 1, MEMORY_TAG_RENDERER);
-	shader_source_frag = kmalloc(fraglen + 1, MEMORY_TAG_RENDERER);
+	char * shader_source_vert = alloca(vertlen + 1);
+	char * shader_source_frag = alloca(fraglen + 1);
 	if (fread(shader_source_vert, vertlen, 1, vertfp) != 1) {
 		KERROR("[opengl_load_shaders()]");
 		KERROR("failure while reading vertex shader from %s", SHADER_VERTEX_FILE);
@@ -69,28 +72,21 @@ static b8 opengl_load_shaders(void) {
 		KERROR("failure while reading fragment shader from %s", SHADER_FRAGMENT_FILE);
 		return FALSE;
 	}
-	shader_source_vert[shader_source_vert_size - 1] = '\0';
-	shader_source_frag[shader_source_frag_size - 1] = '\0';
-
-	shader_source_vert_size = vertlen + 1;
-	shader_source_frag_size = fraglen + 1;
+	shader_source_vert[vertlen] = '\0';
+	shader_source_frag[fraglen] = '\0';
 
 	fclose(vertfp);
 	fclose(fragfp);
 
-	return TRUE;
-}
-
-static b8 opengl_compile_shaders(void) {
 	context.shader_vertex = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(context.shader_vertex, 1, (const char * const *) &shader_source_vert, NULL);
+	glShaderSource(context.shader_vertex, 1, (const char * const *) &shader_source_vert, (const GLint *) NULL);
 	glCompileShader(context.shader_vertex);
 
 	GLint result = GL_TRUE;
 	glGetShaderiv(context.shader_vertex, GL_COMPILE_STATUS, &result);
 	if (result == GL_FALSE) {
 		char log[256];
-		glGetShaderInfoLog(context.shader_vertex, 256, NULL, log);
+		glGetShaderInfoLog(context.shader_vertex, 256, (GLsizei *) NULL, log);
 		KERROR("[opengl_compile_shaders()]");
 		KERROR("failed to compile opengl vertex shader:");
 		KERROR("%s", log);
@@ -98,13 +94,13 @@ static b8 opengl_compile_shaders(void) {
 	}
 
 	context.shader_fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(context.shader_fragment, 1, (const char * const *) &shader_source_frag, NULL);
+	glShaderSource(context.shader_fragment, 1, (const char * const *) &shader_source_frag, (const GLint *) NULL);
 	glCompileShader(context.shader_fragment);
 
 	glGetShaderiv(context.shader_fragment, GL_COMPILE_STATUS, &result);
 	if (result == GL_FALSE) {
 		char log[256];
-		glGetShaderInfoLog(context.shader_fragment, 256, NULL, log);
+		glGetShaderInfoLog(context.shader_fragment, 256, (GLsizei *) NULL, log);
 		KERROR("[opengl_compile_shaders()]");
 		KERROR("failed to compile opengl fragment shader:");
 		KERROR("%s", log);
@@ -119,7 +115,7 @@ static b8 opengl_compile_shaders(void) {
 	glGetProgramiv(context.shader, GL_LINK_STATUS, &result);
 	if (result == GL_FALSE) {
 		char log[256];
-		glGetProgramInfoLog(context.shader, 256, NULL, log);
+		glGetProgramInfoLog(context.shader, 256, (GLsizei *) NULL, log);
 		KERROR("[opengl_compile_shaders()]");
 		KERROR("failed to link opengl shader program:");
 		KERROR("%s", log);
@@ -138,15 +134,9 @@ static b8 opengl_compile_shaders(void) {
 #define MAX_INDICES 8192
 
 b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * application_name, platform_state_t * pstate) {
-	if (!opengl_load_shaders()) {
+	if (!opengl_init_shaders()) {
 		KERROR("[opengl_renderer_backend_init(backend, application_name, pstate)]");
-		KERROR("failed to load opengl shaders");
-		return FALSE;
-	}
-
-	if (!opengl_compile_shaders()) {
-		KERROR("[opengl_renderer_backend_init(backend, application_name, pstate)]");
-		KERROR("failed to compile opengl shaders");
+		KERROR("failed to init shaders");
 		return FALSE;
 	}
 
@@ -161,7 +151,7 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, context.ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, MAX_INDICES * sizeof(indice_t), NULL, GL_DYNAMIC_DRAW);
 	
-	glVertexAttribPointer(0, VERTEX_POSITION_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), VERTEX_POSITION_OFFSET);
+	glVertexAttribPointer(0, VERTEX_POSITION_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const void *) VERTEX_POSITION_OFFSET);
 	glVertexAttribPointer(1, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const void *) VERTEX_COLOR_OFFSET);
 	glVertexAttribPointer(2, VERTEX_UV_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const void *) VERTEX_UV_OFFSET);
 	glVertexAttribPointer(3, VERTEX_TEX_SIZE, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (const void *) VERTEX_TEX_OFFSET);
@@ -184,10 +174,10 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	file_t file;
-	file_open(&file, "./assets/test.tga", FILE_READ);
+	file_open(&file, (char *) "./assets/test.tga", FILE_READ);
 	file_read(&file);
 	tga_t tga;
-	tga.texture.buffer = NULL;
+	tga.texture.buffer = (u8 *) NULL;
 	tga_empty(&tga);
 	tga_load(&tga, &file);
 
@@ -198,7 +188,7 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 
 	file_close(&file);
 
-	file_open(&file, "./assets/written.tga", FILE_WRITE);
+	file_open(&file, (char *) "./assets/written.tga", FILE_WRITE);
 	tga_save(&tga, &file);
 
 	file_write(&file);
@@ -213,8 +203,6 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 }
 
 void opengl_renderer_backend_deinit(renderer_backend_t * backend) {
-	kfree(shader_source_vert, shader_source_vert_size, MEMORY_TAG_RENDERER);
-	kfree(shader_source_frag, shader_source_frag_size, MEMORY_TAG_RENDERER);
 	glDeleteProgram(context.shader);
 }
 

@@ -12,7 +12,7 @@ OPENGLFLAGS = -lGL -Iopengl-include
 WINOPENGLFLAGS = -lopengl32 -Iopengl-include
 
 WINCC = x86_64-w64-mingw32-gcc
-WINLIBS = -Lwinlib -lglfw3 -lgdi32 -lkernel32 -lm
+WINLIBS = -Lwinlib/mingw -lglfw3 -lgdi32 -lkernel32 -lm
 WINFLAGS = -std=c99 -Wall -Wextra -Wno-newline-eof -Wno-unused-parameter -Iinclude -Iwinclude -DKEXPORT -DKWINDOWS_DLL -DGLFW_DLL -shared -DVK_PROTOTYPES -DVK_USE_PLATFORM_WIN32_KHR -O3
 WINBIN = $(BINDIR)/libengine.dll
 WINRELEASE = -Wl,-subsystem,windows -mwindows

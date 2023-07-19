@@ -9,7 +9,7 @@ u64 kstrlen(const char * str) {
 
 char * kstrdup(char * str) {
     u64 len = strlen(str);
-    char * cpy = kmalloc(len + 1, MEMORY_TAG_STRING);
+    char * cpy = (char *) kmalloc(len + 1, MEMORY_TAG_STRING);
     kmemcpy(cpy, str, len + 1);
     return cpy;
 }

@@ -6,7 +6,7 @@
 void file_open(file_t * file, char * filename, file_operation_enum op) {
 	file->fd = platform_file_open(filename, op);
 	file->op = op;
-	file->buffer = NULL;
+	file->buffer = (u8 *) NULL;
 	file->length = 0;
 }
 
@@ -27,7 +27,7 @@ void file_read(file_t * file) {
 		kfree(file->buffer, file->length, MEMORY_TAG_FILE);
 	}
 	file_length(file);
-	file->buffer = kmalloc(file->length, MEMORY_TAG_FILE);
+	file->buffer = (u8 *) kmalloc(file->length, MEMORY_TAG_FILE);
 	platform_file_read(file->fd, file->length, file->buffer);
 }
 
@@ -46,7 +46,7 @@ void file_resize(file_t * file, u64 length) {
 		kfree(file->buffer, file->length, MEMORY_TAG_FILE);
 	}
 	file->length = length;
-	file->buffer = kmalloc(file->length, MEMORY_TAG_FILE);
+	file->buffer = (u8 *) kmalloc(file->length, MEMORY_TAG_FILE);
 }
 
 void file_empty(file_t * file) {

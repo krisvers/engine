@@ -5,10 +5,10 @@
 #include <core/mem.h>
 #include <defines.h>
 
-static renderer_backend_t * backend = NULL;
+static renderer_backend_t * backend = (renderer_backend_t *) NULL;
 
 b8 renderer_init(const char * application_name, platform_state_t * pstate) {
-    backend = kmalloc(sizeof(renderer_backend_t), MEMORY_TAG_RENDERER);
+    backend = (renderer_backend_t *) kmalloc(sizeof(renderer_backend_t), MEMORY_TAG_RENDERER);
 
     if (!renderer_backend_create(RENDERER_BACKEND_OPENGL, pstate, backend)) {
         KFATAL("[renderer_init(application_name, pstate)]");

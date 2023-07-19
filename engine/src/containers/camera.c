@@ -5,7 +5,7 @@
 #include <math.h>
 
 camera_t * camera_create(f32 fov, f32 near, f32 far, f32 w, f32 h) {
-	camera_t * cam = kmalloc(sizeof(camera_t), MEMORY_TAG_CAMERA);
+	camera_t * cam = (camera_t *) kmalloc(sizeof(camera_t), MEMORY_TAG_CAMERA);
 	kmemzero(&cam->transform, sizeof(transform_t));
 	cam->transform.up[0] = 0.0f; cam->transform.up[1] = 1.0f; cam->transform.up[2] = 0.0f;
 	cam->clipping_far = far;
@@ -18,7 +18,7 @@ camera_t * camera_create(f32 fov, f32 near, f32 far, f32 w, f32 h) {
 }
 
 void camera_destroy(camera_t * cam) {
-	kfree(cam, sizeof(camera_t), MEMORY_TAG_CAMERA);
+	kfree((void *) cam, sizeof(camera_t), MEMORY_TAG_CAMERA);
 }
 
 void camera_view_matrix(camera_t * cam, mat4x4 R) {
@@ -49,7 +49,7 @@ void camera_perspective_matrix(camera_t * cam, mat4x4 R) {
 }
 
 camera_t * ortho_camera_create(float w, float h, float near, float far) {
-	camera_t * cam = kmalloc(sizeof(camera_t), MEMORY_TAG_CAMERA);
+	camera_t * cam = (camera_t *) kmalloc(sizeof(camera_t), MEMORY_TAG_CAMERA);
 	kmemzero(&cam->transform, sizeof(transform_t));
 	cam->ortho = TRUE;
 	cam->transform.up[0] = 0; cam->transform.up[1] = 1; cam->transform.up[2] = 0;

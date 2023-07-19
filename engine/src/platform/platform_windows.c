@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <renderer/frontend.h>
 
 #ifdef KPLATFORM_VULKAN
@@ -54,6 +53,11 @@ b8 platform_startup(
 	i32 x, i32 y, i32 w, i32 h
 ) {
 	platform_state->internal_state = malloc(sizeof(internal_state_t));
+	if (platform_state->internal_state == NULL) {
+		KFATAL("[platform_startup(platform_state, app_name, x, y, w, h)]");
+		KFATAL("failed to allocate memory for internal state");
+		return FALSE;
+	}
 	internal_state_t * state = (internal_state_t *) platform_state->internal_state;
 	current_state = state;
 

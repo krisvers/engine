@@ -3,7 +3,7 @@
 #include <math/linmath.h>
 
 vertex_t * vertex_create(vec3 pos, vec3 col, vec2 uv, u64 tex) {
-    vertex_t * vert = kmalloc(sizeof(vertex_t), MEMORY_TAG_MESH);
+    vertex_t * vert = (vertex_t *) kmalloc(sizeof(vertex_t), MEMORY_TAG_MESH);
     vert->position[0] = pos[0];
     vert->position[1] = pos[1];
     vert->position[2] = pos[2];
@@ -17,5 +17,5 @@ vertex_t * vertex_create(vec3 pos, vec3 col, vec2 uv, u64 tex) {
 }
 
 void vertex_destroy(vertex_t * vertex) {
-    kfree(vertex, sizeof(vertex_t), MEMORY_TAG_MESH);
+    kfree((void *) vertex, sizeof(vertex_t), MEMORY_TAG_MESH);
 }

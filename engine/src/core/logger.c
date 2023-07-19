@@ -49,7 +49,7 @@ void KAPI log_set_logfile(char * filename, log_level_enum level) {
 }
 
 void KAPI log_unset_logfile(void) {
-	logfile = NULL;
+	logfile = (char *) NULL;
 	if (logfp != NULL) {
 		fclose(logfp);
 	}
@@ -65,7 +65,7 @@ void KAPI log_hijack(logger_func lf) {
 }
 
 void KAPI log_output(log_level_enum level, const char * message, ...) {
-	__builtin_va_list arg_ptr;
+	variable_args_list arg_ptr;
 	va_start(arg_ptr, message);
 
 	char format_buffer[1024];

@@ -4,7 +4,7 @@
 #include <defines.h>
 #include <math/linmath.h>
 
-#define VERTEX_POSITION_OFFSET ((const void *) 0)
+#define VERTEX_POSITION_OFFSET (0)
 #define VERTEX_POSITION_BYTE_SIZE (sizeof(vec3))
 #define VERTEX_POSITION_SIZE (VERTEX_POSITION_BYTE_SIZE / sizeof(float))
 #define VERTEX_COLOR_OFFSET (VERTEX_POSITION_OFFSET + VERTEX_POSITION_BYTE_SIZE)

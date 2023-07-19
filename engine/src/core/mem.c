@@ -84,7 +84,7 @@ void * kmemcpy(void * dst, void * src, u64 size) {
 
 void * krmemcpy(void * dst, void * src, u64 nmemb, u64 size) {
 	for (u64 i = 0; i < nmemb; ++i) {
-		kmemcpy(dst + (i * size), src + (i * size), size);
+		kmemcpy((void *) (((u64) dst) + (i * size)), (void *) (((u64) src) + (i * size)), size);
 	}
 	return dst;
 }

@@ -37,9 +37,9 @@ b8 renderer_backend_create(renderer_backends_enum type, platform_state_t * pstat
 }
 
 void renderer_backend_destroy(renderer_backend_t * backend) {
-    backend->init = NULL;
-    backend->deinit = NULL;
-    backend->frame_begin = NULL;
-    backend->frame_end = NULL;
-    backend->resize = NULL;
+    backend->init = (renderer_init_func) NULL;
+    backend->deinit = (renderer_deinit_func) NULL;
+    backend->frame_begin = (renderer_frame_func) NULL;
+    backend->frame_end = (renderer_frame_func) NULL;
+    backend->resize = (renderer_resize_func) NULL;
 }

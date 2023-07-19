@@ -32,9 +32,9 @@ dynarray_t KAPI * _dynarray_pop_at(dynarray_t * array, u64 index, void * dst);
 
 #define dynarray_destroy(array) _dynarray_destroy(array);
 
-#define dynarray_push(array, value)						\
+#define dynarray_push(array, value, T)					\
 	{													\
-		__typeof__(value) tmp = value;					\
+		T tmp = value;									\
 		array = _dynarray_push(array, (void *) &tmp);	\
 	}
 
@@ -46,9 +46,9 @@ dynarray_t KAPI * _dynarray_pop_at(dynarray_t * array, u64 index, void * dst);
 #define dynarray_pop(array, value_ptr) \
 	_dynarray_pop(array, value_ptr);
 
-#define dynarray_insert_at(array, index, value)						\
+#define dynarray_insert_at(array, index, value, T)					\
 	{																\
-		__typeof__(value) tmp = value;								\
+		T tmp = value;												\
 		array = _dynarray_insert_at(array, index, (void *) &tmp);	\
 	}
 

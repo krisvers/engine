@@ -8,7 +8,7 @@
 #ifdef KASSERTIONS_ENABLED
 	#ifdef _MSC_VER
 		#include <intrin.h>
-		#define DEBUG_BREAK() __debugBreak()
+		#define DEBUG_BREAK() __debugbreak()
 	#else
 		#define DEBUG_BREAK() __builtin_trap()
 	#endif

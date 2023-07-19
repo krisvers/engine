@@ -26,20 +26,26 @@ typedef void * vptr;
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 	#define KPLATFORM_WINDOWS 1
+	#define variable_args_list va_list
+
 	#ifndef _WIN64
 		#error "64-bit windows required!"
 	#endif
 #elif defined(__linux__) || defined(__gnu_linux__)
 	#define KPLATFORM_LINUX 1
+	#define variable_args_list __builtin_va_list
 	#if defined(__ANDROID__)
 		#define KPLATFORM_ANDROID 1
 	#endif
 #elif defined(__unix__)
+	#define variable_args_list __builtin_va_list
 	#define KPLATFORM_UNIX 1
 #elif defined(_POSIX_VERSION)
+	#define variable_args_list __builtin_va_list
 	#define KPLATFORM_POSIX 1
 #elif __APPLE__
 	#define KPLATFORM_APPLE 1
+	#define variable_args_list __builtin_va_list
 	#include <TargetConditionals.h>
 	#if TARGET_IPHONE_SIMULATOR
 		#define KPLATFORM_IOS 1
