@@ -21,15 +21,12 @@
 // TODO: re-fucking-factor this!
 #ifdef KPLATFORM_WINDOWS
 #include <malloc.h>
-#define stalloc _malloca
+#define alloca _malloca
 #else
 #include <alloca.h>
-#define stalloc alloca
 #endif
 
 static opengl_context_t context;
-
-static void opengl_assign_texture(texture_atlas_t * atlas, u64 tex);
 
 vec3 position = { 0.0f, 0.0f, -5.0f };
 vec3 rotation = { 0, 0, 0 };
@@ -63,8 +60,8 @@ static b8 opengl_init_shaders(void) {
 	fraglen = ftell(fragfp);
 	fseek(fragfp, 0L, SEEK_SET);
 
-	char * shader_source_vert = stalloc(vertlen + 1);
-	char * shader_source_frag = stalloc(fraglen + 1);
+	char * shader_source_vert = alloca(vertlen + 1);
+	char * shader_source_frag = alloca(fraglen + 1);
 	if (fread(shader_source_vert, vertlen, 1, vertfp) != 1) {
 		KERROR("[opengl_load_shaders()]");
 		KERROR("failure while reading vertex shader from %s", SHADER_VERTEX_FILE);
@@ -169,6 +166,39 @@ b8 opengl_renderer_backend_init(renderer_backend_t * backend, const char * appli
 
 	context.mvp = glGetUniformLocation(context.shader, "in_mvp");
 
+	glGenTextures(1, &context.texture);
+	glBindTexture(GL_TEXTURE_2D, context.texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	file_t file;
+	file_open(&file, (char *) "./assets/test.tga", FILE_READ);
+	file_read(&file);
+	tga_t tga;
+	tga.texture.buffer = (u8 *) NULL;
+	tga_empty(&tga);
+	tga_load(&tga, &file);
+
+	texture_atlas_t * atlas = texture_atlas_create();
+	texture_atlas_stitch(atlas, &tga.texture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_atlas_at(atlas, 0)->width, texture_atlas_at(atlas, 0)->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, atlas->buffer);
+
+	file_close(&file);
+
+	file_open(&file, (char *) "./assets/written.tga", FILE_WRITE);
+	tga_save(&tga, &file);
+
+	file_write(&file);
+	file_close(&file);
+
+	tga_empty(&tga);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	return TRUE;
 }
 
@@ -189,17 +219,6 @@ b8 opengl_renderer_backend_frame_begin(renderer_backend_t * backend, render_pack
 		KERROR("no camera assigned");
 		return TRUE;
 	}
-
-	glGenTextures(1, &context.texture);
-	glBindTexture(GL_TEXTURE_2D, context.texture);
-	opengl_assign_texture(packet->atlas, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, context.vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, packet->mesh->vertices->length * sizeof(vertex_t), packet->mesh->vertices->array);
@@ -227,7 +246,6 @@ b8 opengl_renderer_backend_frame_begin(renderer_backend_t * backend, render_pack
 	mat4x4_mul(mvp, mvp, m);
 
 	glUniformMatrix4fv(context.mvp, 1, GL_FALSE, &mvp[0][0]);
-
 	glBindTexture(GL_TEXTURE_2D, context.texture);
 	return TRUE;
 }
@@ -243,10 +261,6 @@ b8 opengl_renderer_backend_frame_end(renderer_backend_t * backend, render_packet
 	glUseProgram(context.shader);
 	glDrawElements(GL_TRIANGLES, packet->mesh->indices->length * sizeof(indice_t), GL_UNSIGNED_INT, 0);
 	return TRUE;
-}
-
-static void opengl_assign_texture(texture_atlas_t * atlas, u64 tex) {
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_atlas_at(atlas, tex)->width, texture_atlas_at(atlas, tex)->height, 0, GL_BGRA, GL_UNSIGNED_BYTE, texture_atlas_at(atlas, tex)->buffer);
 }
 
 #endif

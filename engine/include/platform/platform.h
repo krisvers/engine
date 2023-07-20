@@ -27,7 +27,6 @@ void * platform_memset(void * dst, i32 value, u64 size);
 void * platform_memcpy(void * dst, const void * src, u64 size);
 void * platform_memzero(void * dst, u64 size);
 
-void platform_console_write_length(u8 * message, u64 length, u8 color);
 void platform_console_write(const char * message, u8 color);
 void platform_console_write_error(const char * message, u8 color);
 
@@ -45,14 +44,11 @@ void platform_sleep(u64 ms);
 #error "Unsupported platform file API"
 #endif
 
-/*
-	return values that are non-zero are errors
-*/
-int platform_file_open(file_desc_t * outfd, char * filename, u8 op);
-int platform_file_close(file_desc_t fd);
-int platform_file_read(file_desc_t fd, u64 length, u8 * buffer);
-int platform_file_write(file_desc_t fd, u64 length, u8 * buffer);
-int platform_file_length(u64 * outlen, file_desc_t fd);
-int platform_file_last_modification(f64 * outmod, file_desc_t fd, char * path);
+file_desc_t platform_file_open(char * filename, u8 op);
+void platform_file_close(file_desc_t fp);
+void platform_file_read(file_desc_t fp, u64 length, u8 * buffer);
+void platform_file_write(file_desc_t fp, u64 length, u8 * buffer);
+u64 platform_file_length(file_desc_t fp);
+f64 platform_file_last_modification(file_desc_t fp, char * path);
 
 #endif

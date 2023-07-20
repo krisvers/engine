@@ -4,12 +4,9 @@
 #include <core/event.h>
 #include <core/input.h>
 #include <core/clock.h>
-#include <file/tga.h>
 #include <platform/platform.h>
 #include <renderer/frontend.h>
 #include <containers/camera.h>
-#include <containers/texture.h>
-#include <scene/scene.h>
 
 typedef struct applicationState {
 	game_t * game_instance;
@@ -25,7 +22,6 @@ typedef struct applicationState {
 
 static b8 initialized = FALSE;
 static application_state_t app_state;
-static render_packet_t render_packet;
 
 b8 application_create(game_t * instance) {
 	if (initialized) {
@@ -81,17 +77,6 @@ b8 application_create(game_t * instance) {
 	}
 
 	renderer_set_camera(app_state.camera);
-
-	render_packet.atlas = texture_atlas_create();
-	tga_t tga;
-	file_t file;
-	file_open(&file, "./assets/test.tga", FILE_READ);
-	file_read(&file);
-	KWRITE(file.buffer, file.length);
-	tga_load(&tga, &file);
-	KWRITE(tga.texture.buffer, tga.texture.bytesize);
-	file_close(&file);
-	texture_atlas_stitch(render_packet.atlas, &tga.texture);
 
 	initialized = TRUE;
 	return TRUE;
@@ -151,8 +136,9 @@ b8 application_run(void) {
 		}
 
 		// refactor this!!
-		render_packet.delta_time = delta;
-		render_packet.mesh = mesh_create();
+		render_packet_t packet;
+		packet.delta_time = delta;
+		packet.mesh = mesh_create();
 		vertex_t a = {
 			{ -1, -1, 0 },
 			{ 1, 1, 0 },
@@ -177,19 +163,19 @@ b8 application_run(void) {
 			{ 1, 1 },
 			1,
 		};
-		mesh_push_vertex(render_packet.mesh, &a);
-		mesh_push_vertex(render_packet.mesh, &b);
-		mesh_push_vertex(render_packet.mesh, &c);
-		mesh_push_vertex(render_packet.mesh, &d);
+		mesh_push_vertex(packet.mesh, &a);
+		mesh_push_vertex(packet.mesh, &b);
+		mesh_push_vertex(packet.mesh, &c);
+		mesh_push_vertex(packet.mesh, &d);
 		indice_t indice = { 0, 1, 3 };
-		mesh_push_indices_value(render_packet.mesh, indice);
+		mesh_push_indices_value(packet.mesh, indice);
 		indice.x = 0;
 		indice.y = 3;
 		indice.z = 2;
-		mesh_push_indices_value(render_packet.mesh, indice);
-		if (!renderer_draw_frame(&render_packet)) {
+		mesh_push_indices_value(packet.mesh, indice);
+		if (!renderer_draw_frame(&packet)) {
 		}
-		mesh_destroy(render_packet.mesh);
+		mesh_destroy(packet.mesh);
 
 		platform_swap_buffers(&app_state.platform);
 

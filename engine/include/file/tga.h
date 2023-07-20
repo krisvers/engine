@@ -62,8 +62,8 @@ typedef struct tgaFooter {
 } tga_footer_t;
 
 typedef struct tga {
-	tga_header_t header;
 	texture_t texture;
+	tga_header_t header;
 } tga_t;
 
 tga_t KAPI * tga_create(texture_t * texture);

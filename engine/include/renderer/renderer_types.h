@@ -4,7 +4,6 @@
 #include <defines.h>
 #include <platform/platform.h>
 #include <containers/camera.h>
-#include <containers/texture.h>
 #include <containers/mesh.h>
 
 typedef enum rendererBackendsEnum {
@@ -17,7 +16,6 @@ typedef enum rendererBackendsEnum {
 typedef struct renderPacket {
     f64 delta_time;
     mesh_t * mesh;
-    texture_atlas_t * atlas;
 } render_packet_t;
 
 typedef struct rendererBackend {
