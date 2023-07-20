@@ -45,8 +45,8 @@ static void glfw_window_close_handler(GLFWwindow * window);
 static void glfw_window_resize_handler(GLFWwindow * window, int w, int h);
 
 /* win32 helper funcs */
-static TCHAR win32_last_error[256];
-static void win32_last_error_cstr(void);
+static TCHAR win32_err[256];
+static DWORD win32_last_error(void);
 
 typedef struct internalState {
 	GLFWwindow * glfw_win;
@@ -54,8 +54,6 @@ typedef struct internalState {
 } internal_state_t;
 
 internal_state_t * current_state;
-static f64 clock_frequency;
-static LARGE_INTEGER start_time;
 
 /* setup */
 
@@ -202,6 +200,21 @@ void platform_console_write(const char * message, u8 color) {
 	WriteConsoleA(h_console, message, length, written, 0);
 }
 
+void platform_console_write_length(u8 * message, u64 length, u8 color) {
+	HANDLE h_console = GetStdHandle(STD_OUTPUT_HANDLE);
+	static u8 levels[6] = { 0x40, 0x04, 0x06, 0x02, 0x01, 0x08 };
+	if (color < LOG_LEVEL_TRACE) {
+		SetConsoleTextAttribute(h_console, levels[color]);
+	}
+
+#if DEBUG_FLAG
+	OutputDebugStringA(message);
+#endif
+
+	LPDWORD written = 0;
+	WriteConsoleA(h_console, message, length, written, 0);
+}
+
 void platform_console_write_error(const char * message, u8 color) {
 	HANDLE h_console = GetStdHandle(STD_ERROR_HANDLE);
 	static u8 levels[6] = { 0x40, 0x04, 0x06, 0x02, 0x01, 0x08 };
@@ -256,45 +269,46 @@ static DWORD file_operation_map[] = {
 	GENERIC_WRITE | GENERIC_READ,
 };
 
-file_desc_t platform_file_open(char * filename, u8 op) {
+int platform_file_open(file_desc_t * outfp, char * filename, u8 op) {
 	DWORD creation;
 	if (op == FILE_WRITE || op == FILE_WRITEB || op == FILE_APPEND || op == FILE_APPEND) {
 		creation = CREATE_ALWAYS;
 	} else {
 		creation = OPEN_EXISTING;
 	}
-	HANDLE file = CreateFileA((LPCSTR) filename, file_operation_map[op], FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, creation, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (file == INVALID_HANDLE_VALUE) {
+	*outfp = CreateFileA((LPCSTR) filename, file_operation_map[op], FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, creation, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (*outfp == INVALID_HANDLE_VALUE) {
 		KERROR("[platform_file_open(filename, op)]");
 		KERROR("failed to open file %s", filename);
-		win32_last_error_cstr();
+		return win32_last_error();
 	}
 
-	return file;
+	return 0;
 }
 
-void platform_file_close(file_desc_t fp) {
+int platform_file_close(file_desc_t fp) {
 	if (fp == INVALID_HANDLE_VALUE) {
 		KERROR("[platform_file_close(fp)]");
 		KERROR("given file descriptor does not describe a file");
-		win32_last_error_cstr();
-		return;
+		return win32_last_error();
 	}
 
 	if (CloseHandle(fp) == 0) {
 		KERROR("[platform_file_close(fp)]");
 		KERROR("failed to close file");
-		win32_last_error_cstr();
+		return win32_last_error();
 	}
+
+	return 0;
 }
 
-void platform_file_read(file_desc_t fp, u64 length, u8 * buffer) {
+int platform_file_read(file_desc_t fp, u64 length, u8 * buffer) {
 	u32 read = 0;
 	BOOL res = ReadFile(fp, buffer, length, &read, NULL);
 	if (res == 0) {
 		KERROR("[platform_file_read(fp, length, buffer)]");
 		KERROR("failure whilst reading file");
-		win32_last_error_cstr();
+		return win32_last_error();
 	}
 	LARGE_INTEGER move;
 	move.QuadPart = 0;
@@ -302,16 +316,18 @@ void platform_file_read(file_desc_t fp, u64 length, u8 * buffer) {
 	if (res == 0) {
 		KERROR("[platform_file_read(fp, length, buffer)]");
 		KERROR("failed to seek to start of the file");
-		win32_last_error_cstr();
+		return win32_last_error();
 	}
+
+	return 0;
 }
 
-void platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
+int platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
 	BOOL res = WriteFile(fp, buffer, length, NULL, NULL);
 	if (res == 0) {
 		KERROR("[platform_file_write(fp, length, buffer)]");
 		KERROR("failure whilst writing to file");
-		win32_last_error_cstr();
+		return win32_last_error();
 	}
 	LARGE_INTEGER move;
 	move.QuadPart = 0;
@@ -319,44 +335,46 @@ void platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
 	if (res == 0) {
 		KERROR("[platform_file_read(fp, length, buffer)]");
 		KERROR("failed to seek to start of the file");
-		win32_last_error_cstr();
+		return win32_last_error();
 	}
+
+	return 0;
 }
 
-u64 platform_file_length(file_desc_t fp) {
+int platform_file_length(u64 * outlen, file_desc_t fp) {
 	LARGE_INTEGER move;
 	move.QuadPart = 0;
 	BOOL res = SetFilePointerEx(fp, move, NULL, FILE_BEGIN);
 	if (res == 0) {
 		KERROR("[platform_file_read(fp, length, buffer)]");
 		KERROR("failed to seek to start of the file");
-		win32_last_error_cstr();
+		return win32_last_error();
 	}
 	platform_sleep(1);
 	LARGE_INTEGER len;
 	if (GetFileSizeEx(fp, &len) == 0) {
 		KERROR("[platform_file_length(fp)]");
 		KERROR("failed to retrieve file length");
-		win32_last_error_cstr();
+		return win32_last_error();
 	}
 
-	return len.QuadPart;
+	*outlen = len.QuadPart;
+	return 0;
 }
 
-f64 platform_file_last_modification(file_desc_t fp, char * path) {
+int platform_file_last_modification(f64 * outmod, file_desc_t fp, char * path) {
 	FILETIME mod_time;
 	BOOL res = GetFileTime(fp, NULL, NULL, &mod_time);
 	if (res == 0) {
 		KERROR("[platform_file_last_modification(fp, path)]");
 		KERROR("failed to obtain last modification time from file at path %s", path);
-		win32_last_error_cstr();
-		return -1;
+		return win32_last_error();
 	}
 
 	u64 time = 0;
 	((LPDWORD) &time)[0] = mod_time.dwLowDateTime; ((LPDWORD) &time)[1] = mod_time.dwHighDateTime;
-	f64 mod = time * 10;
-	return mod;
+	*outmod = time * 10;
+	return 0;
 }
 
 /* vulkan */
@@ -560,13 +578,16 @@ static void glfw_window_resize_handler(GLFWwindow * window, int w, int h) {
 	renderer_on_resize(w, h);
 }
 
-static void win32_last_error_cstr(void) {
+static DWORD win32_last_error(void) {
+	DWORD err = GetLastError();
 	u64 len = FormatMessageA(
 		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPSTR) win32_last_error, 256, NULL
+		NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR) win32_err, 256, NULL
 	);
-	wprintf(L"win32 error: %hs\n", win32_last_error);
+	wprintf(L"win32 error: %hs\n", win32_err);
+
+	return err;
 }
 
 #endif

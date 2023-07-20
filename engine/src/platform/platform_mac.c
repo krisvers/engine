@@ -197,68 +197,129 @@ void platform_set_cursor(u8 value) {
 	}
 }
 
-static const char * file_operation_cstrs[] = {
-	"r",
-	"w",
-	"rb",
-	"wb",
-	"a",
-	"ab",
+static int file_operation_map[] = {
+	O_RDONLY,
+	O_RDWR,
+	O_RDONLY,
+	O_RDWR,
+	O_APPEND,
+	O_APPEND,
+	O_RDWR,
 };
 
-file_desc_t platform_file_open(char * filename, u8 op) {
-	FILE * fp = fopen(filename, file_operation_cstrs[op]);
-	if (fp == NULL) {
+int platform_file_open(file_desc_t* outfp, char* filename, u8 op) {
+	platform_memzero(outfp, sizeof(file_desc_t));
+
+	outfp->fildes = open(filename, file_operation_map[op]);
+	if (outfp->fildes <= -1) {
 		KERROR("[platform_file_open(filename, op)]");
-		KERROR("failed to open file at %s", filename);
-		return NULL;
+		KERROR("failed to open file %s", filename);
+		return posix_last_error();
 	}
 
-	return fp;
+	return 0;
 }
 
-void platform_file_close(file_desc_t fp) {
-	if (fp == NULL) {
-		KERROR("[platform_file_close(fp)]");
-		KERROR("given file descriptor does not describe a file");
-		return;
+int platform_file_close(file_desc_t fp) {
+	if (close(fp.fildes) != 0) {
+		return posix_last_error();
+	}
+	fp.fildes = -1;
+
+	return 0;
+}
+
+int platform_file_read(file_desc_t fp, u64 length, u8* buffer) {
+	// reset file offset
+	if (lseek(fp.fildes, 0L, SEEK_SET) == -1) {
+		KERROR("[platform_file_read(fp, length, buffer)]");
+		KERROR("failed to seek to file start");
+		return posix_last_error();
+	}
+	if (length > 0x7FFFF000) {
+		if (read(fp.fildes, buffer, 0x7FFFF000) != 0x7FFFF000) {
+			KERROR("[platform_file_read(fp, length, buffer)]");
+			KERROR("failure whilst reading file");
+			return posix_last_error();
+		}
+		length -= 0x7FFFF000;
 	}
 
-	fclose(fp);
-}
-
-void platform_file_read(file_desc_t fp, u64 length, u8 * buffer) {
-	if (fread(buffer, length, 1, fp) != 1) {
+	if (read(fp.fildes, buffer, length) != length) {
 		KERROR("[platform_file_read(fp, length, buffer)]");
 		KERROR("failure whilst reading file");
-		return;
+		return posix_last_error();
 	}
+
+	return 0;
 }
 
-void platform_file_write(file_desc_t fp, u64 length, u8 * buffer) {
-	if (fwrite(buffer, length, 1, fp) != 1) {
+int platform_file_write(file_desc_t fp, u64 length, u8* buffer) {
+	if (lseek(fp.fildes, (off_t)0, SEEK_SET) == -1) {
+		KERROR("[platform_file_read(fp, length, buffer)]");
+		KERROR("failed to seek to file start");
+		return posix_last_error();
+	}
+	if (length > 0x7FFFF000) {
+		if (write(fp.fildes, buffer, 0x7FFFF000) != 0x7FFFF000) {
+			KERROR("[platform_file_read(fp, length, buffer)]");
+			KERROR("failure whilst reading file");
+			return posix_last_error();
+		}
+		length -= 0x7FFFF000;
+	}
+	if (write(fp.fildes, buffer, length) != length) {
 		KERROR("[platform_file_write(fp, length, buffer)]");
 		KERROR("failure whilst writing to file");
-		return;
-	}
-}
-
-u64 platform_file_length(file_desc_t fp) {
-	if (fp == NULL) {
-		KERROR("[platform_file_length(fp)]");
-		KERROR("given file descriptor does not describe a file");
-		return 0;
+		return posix_last_error();
 	}
 
-	fseek(fp, 0L, SEEK_END);
-	u64 len = ftell(fp);
-	fseek(fp, 0L, SEEK_SET);
-
-	return len;
+	return 0;
 }
 
-f64 platform_file_last_modification(file_desc_t fp, char * path) {
-	KERROR("platform_file_last_modification not implemented");
+int platform_file_length(u64* outlen, file_desc_t fp) {
+	off_t start = lseek(fp.fildes, (off_t)0, SEEK_CUR);
+	if (start == -1) {
+		KERROR("[platform_file_length(outlen, fp)]");
+		KERROR("failed to save current file offset");
+		return posix_last_error();
+	}
+	off_t len = lseek(fp.fildes, (off_t)0, SEEK_END);
+	if (len == -1) {
+		KERROR("[platform_file_length(outlen, fp)]");
+		KERROR("failed to seek to file end");
+		return posix_last_error();
+	}
+	if (lseek(fp.fildes, start, SEEK_SET) == -1) {
+		KERROR("[platform_file_read(outlen, fp)]");
+		KERROR("failed to seek to file start");
+		return posix_last_error();
+	}
+
+	*outlen = len;
+	return 0;
+}
+
+int platform_file_last_modification(f64* outmod, file_desc_t fp, char* path) {
+	struct stat st;
+
+	int res = fstat(fp.fildes, &st);
+	if (res == -1) {
+		goto platform_file_last_modification_path_fallback;
+	}
+	goto platform_file_last_modification_path_fallback_end;
+
+platform_file_last_modification_path_fallback:
+	res = stat(path, &st);
+	if (res == -1) {
+		KERROR("[platform_file_last_modification(fp, path)]");
+		KERROR("failed to obtain file status from fp and path %s", path);
+		return posix_last_error();
+	}
+platform_file_last_modification_path_fallback_end:;
+
+	*outmod = st.st_mtim.tv_nsec / 1000.0f + st.st_mtim.tv_sec * 1000;
+	return 0;
 }
 
 void platform_get_required_extension_names(dynarray_t * array) {
@@ -446,6 +507,13 @@ static void glfw_window_close_handler(GLFWwindow * window) {
 	//KLOG("window %p is being closed", (void *) window);
 	glfwDestroyWindow(window);
 	current_state->glfw_win = NULL;
+}
+
+/* POSIX helper functions */
+
+static int posix_last_error(void) {
+	fprintf(stderr, "errno: %i\n%s\n", errno, strerror(errno));
+	return errno;
 }
 
 #endif

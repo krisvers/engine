@@ -9,7 +9,10 @@
 
 static logger_func log_custom_output;
 static void log_output_file_default(log_level_enum level, const char * message);
+static logger_length_func log_custom_output_length;
+static void log_output_file_length_default(log_level_enum level, u8 * message, u64 length);
 static logger_func log_output_file = log_output_file_default;
+static logger_length_func log_output_length_file = log_output_file_length_default;
 static b8 log_to_files = FALSE;
 static char * logfile;
 static log_level_enum log_level_file;
@@ -64,6 +67,14 @@ void KAPI log_hijack(logger_func lf) {
 	log_custom_output = lf;
 }
 
+logger_length_func KAPI log_get_current_length_custom(void) {
+	return log_custom_output_length;
+}
+
+void KAPI log_length_hijack(logger_length_func lf) {
+	log_custom_output_length = lf;
+}
+
 void KAPI log_output(log_level_enum level, const char * message, ...) {
 	variable_args_list arg_ptr;
 	va_start(arg_ptr, message);
@@ -97,9 +108,31 @@ void KAPI log_output(log_level_enum level, const char * message, ...) {
 	}
 }
 
-static void log_output_file_default(log_level_enum level, const char * formatted_message) {
+void KAPI log_write(log_level_enum level, u8 * message, u64 length) {
+#ifdef LOG_CONSOLE
+	platform_console_write_length(message, length, level);
+#endif
+
+	if (log_custom_output != NULL) {
+		log_custom_output_length(level, message, length);
+	}
+
+	if (log_to_files && log_output_length_file != NULL) {
+		log_output_length_file(level, message, length);
+	}
+}
+
+static void log_output_file_default(log_level_enum level, const char* formatted_message) {
 	if (level > log_level_file) {
 		return;
 	}
 	fprintf(logfp, "%s: %s\n", log_level_strings[level], formatted_message);
+}
+
+
+static void log_output_file_length_default(log_level_enum level, u8 * formatted_message, u64 length) {
+	if (level > log_level_file) {
+		return;
+	}
+	fwrite(formatted_message, length, 1, logfp);
 }
