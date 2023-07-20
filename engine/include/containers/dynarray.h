@@ -24,13 +24,13 @@ dynarray_t KAPI * _dynarray_pop_at(dynarray_t * array, u64 index, void * dst);
 #define DYNARRAY_DEFAULT_CAPACITY 1
 #define DYNARRAY_RESIZE_FACTOR 2
 
-#define dynarray_at(array, i, type) ((type *) array->array)[i]
+#define dynarray_at(dynarray, i, T) ((T *) dynarray->array)[i]
 
-#define dynarray_create(type) \
-	_dynarray_create(DYNARRAY_DEFAULT_CAPACITY, sizeof(type));
+#define dynarray_create(T) \
+	_dynarray_create(DYNARRAY_DEFAULT_CAPACITY, sizeof(T));
 
-#define dynarray_reserve(type, cap) \
-	_dynarray_create(cap, sizeof(type));
+#define dynarray_reserve(T, cap) \
+	_dynarray_create(cap, sizeof(T));
 
 #define dynarray_destroy(array) _dynarray_destroy(array);
 
@@ -66,10 +66,10 @@ dynarray_t KAPI * _dynarray_pop_at(dynarray_t * array, u64 index, void * dst);
 #define dynarray_clear(array) \
 	_dynarray_field_set(array, DYNARRAY_LENGTH, 0)
 
-#define dynarray_merge(arra, arrb, type)					\
+#define dynarray_merge(arra, arrb, T)					\
 	{														\
 		for (u64 i = 0; i < arrb->length; ++i) {			\
-			dynarray_push(arra, ((type *) arrb->array)[i]);	\
+			dynarray_push(arra, ((T *) arrb->array)[i]);	\
 		}													\
 	}
 
