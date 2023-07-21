@@ -33,6 +33,7 @@ typedef void (* logger_func)(log_level_enum level, const char * message);
 logger_func KAPI log_get_current_custom(void);
 void KAPI log_hijack(logger_func lf);
 void KAPI log_output(log_level_enum level, const char * message, ...);
+void KAPI log_write(log_level_enum level, const char * message, u64 len);
 
 #ifdef DEBUG_FLAG
 	#define KLOGGER_GET_FILE() __FILE__":%llu "
@@ -54,6 +55,7 @@ void KAPI log_output(log_level_enum level, const char * message, ...);
 #endif
 
 #if LOG_INFO_ENABLED == 1
+	#define KWRITE(message, len) log_write(LOG_LEVEL_INFO, message, len)
 	#define KINFO(message, ...) log_output(LOG_LEVEL_INFO, KLOGGER_MESSAGE(message), ##__VA_ARGS__)
 #else
 	#define KINFO(message, ...)

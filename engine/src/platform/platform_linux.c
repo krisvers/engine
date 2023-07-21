@@ -172,6 +172,14 @@ void platform_console_write(const char * message, u8 color) {
 	printf("\033[%sm%s\033[0m", escape_colors[color], message);
 }
 
+void platform_console_write_length(const char * message, u64 len, u8 color) {
+	static const char * escape_colors[6] = { "0;41", "1;31", "1;33", "1;32", "1;34", "1;36" };
+
+	printf("\033[%sm", escape_colors[color]);
+	write(fileno(stdout), message, len);
+	printf("\033[0m");
+}
+
 void platform_console_write_error(const char * message, u8 color) {
 	static const char * escape_colors[6] = { "0;41", "1;31", "1;33", "1;32", "1;34", "1;36" };
 
@@ -227,6 +235,8 @@ file_desc_t platform_file_open(char * filename, u8 op) {
 		KERROR("failed to open file %s", filename);
 		posix_last_error();
 	}
+
+	return fp;
 }
 
 void platform_file_close(file_desc_t fp) {

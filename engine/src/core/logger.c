@@ -97,6 +97,10 @@ void KAPI log_output(log_level_enum level, const char * message, ...) {
 	}
 }
 
+void log_write(log_level_enum level, const char * message, u64 len) {
+	platform_console_write_length(message, len, level);
+}
+
 static void log_output_file_default(log_level_enum level, const char * formatted_message) {
 	if (level > log_level_file) {
 		return;

@@ -28,6 +28,7 @@ void * platform_memcpy(void * dst, const void * src, u64 size);
 void * platform_memzero(void * dst, u64 size);
 
 void platform_console_write(const char * message, u8 color);
+void platform_console_write_length(const char * message, u64 len, u8 color);
 void platform_console_write_error(const char * message, u8 color);
 
 f64 platform_get_absolute_time(void);

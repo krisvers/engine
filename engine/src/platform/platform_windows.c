@@ -198,8 +198,19 @@ void platform_console_write(const char * message, u8 color) {
 #endif
 
 	DWORD length = strlen(message);
-	LPDWORD written = 0;
-	WriteConsoleA(h_console, message, length, written, 0);
+	DWORD written = 0;
+	WriteConsoleA(h_console, message, length, &written, 0);
+}
+
+void platform_console_write_length(const char * message, u64 len, u8 color) {
+	HANDLE h_console = GetStdHandle(STD_OUTPUT_HANDLE);
+	static u8 levels[6] = { 0x40, 0x04, 0x06, 0x02, 0x01, 0x08 };
+	if (color < LOG_LEVEL_TRACE) {
+		SetConsoleTextAttribute(h_console, levels[color]);
+	}
+
+	DWORD written = 0;
+	WriteConsoleA(h_console, message, len, &written, 0);
 }
 
 void platform_console_write_error(const char * message, u8 color) {
@@ -214,8 +225,8 @@ void platform_console_write_error(const char * message, u8 color) {
 #endif
 
 	DWORD length = strlen(message);
-	LPDWORD written = 0;
-	WriteConsoleA(h_console, message, length, written, 0);
+	DWORD written = 0;
+	WriteConsoleA(h_console, message, length, &written, 0);
 }
 
 /* time */

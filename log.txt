@@ -1,37 +1,36 @@
-Log File Creation Time: Thu Jul 20 16:37:42 2023
+Log File Creation Time: Fri Jul 21 02:43:26 2023
 
-INFO: C:\Users\nik\Dev\c\engine\engine\src\core\application.c:46 test message 3.140000
-INFO: C:\Users\nik\Dev\c\engine\engine\src\platform\platform_windows.c:115 Highest supported OpenGL version: 4.0.0 NVIDIA 536.40
-INFO: C:\Users\nik\Dev\c\engine\engine\testbed\src\game.c:72 8
-INFO: C:\Users\nik\Dev\c\engine\engine\testbed\src\game.c:86 config.txt:
+INFO: ./src/core/application.c:46 test message 3.140000
+INFO: ./src/platform/platform_linux.c:100 Highest supported OpenGL version: 4.6 (Core Profile) Mesa 23.1.3
+INFO: ./src/game.c:72 8
+INFO: ./src/game.c:86 config.txt:
 q
-INFO: C:\Users\nik\Dev\c\engine\engine\src\file\obj.c:26 
-  ¿
-INFO: C:\Users\nik\Dev\c\engine\engine\src\file\obj.c:26  ¿
-INFO: C:\Users\nik\Dev\c\engine\engine\src\file\obj.c:26  ¿
-INFO: C:\Users\nik\Dev\c\engine\engine\src\file\obj.c:26 v 1.000000 0.000000 1.000000
-v 1.000000 0.000000 -1.000000
-s 0
-f 2 3 1
-
-INFO: C:\Users\nik\Dev\c\engine\engine\src\file\obj.c:26 v 1.000000 0.000000 -1.000000
-s 0
-f 2 3 1
-
-INFO: C:\Users\nik\Dev\c\engine\engine\src\file\obj.c:26 s 0
-f 2 3 1
-
-INFO: C:\Users\nik\Dev\c\engine\engine\src\file\obj.c:26 f 2 3 1
-
-INFO: C:\Users\nik\Dev\c\engine\engine\src\file\obj.c:26 
-INFO: C:\Users\nik\Dev\c\engine\engine\src\core\application.c:112 System memory usage:
+INFO: 3: v -1.000000 0.000000 1.000000
+INFO: 2: -1.000000 0.000000 1.000000
+INFO: 2: 0.000000 1.000000
+INFO: 2: 1.000000
+INFO: 3: v 1.000000 0.000000 1.000000
+INFO: 2: 1.000000 0.000000 1.000000
+INFO: 2: 0.000000 1.000000
+INFO: 2: 1.000000
+INFO: 3: v 1.000000 0.000000 -1.000000
+INFO: 2: 1.000000 0.000000 -1.000000
+INFO: 2: 0.000000 -1.000000
+INFO: 2: -1.000000
+ERROR: ./src/file/obj.c:130 [obj_token_type()]
+ERROR: ./src/file/obj.c:131 unknown token:
+INFO: ./src/file/obj.c:133 
+ERROR: ./src/file/obj.c:141 [obj_process_token()]
+ERROR: ./src/file/obj.c:142 cannot process invalid token
+INFO: 0: im witerwy hitting the gwiddy wight now
+INFO: ./src/core/application.c:108 System memory usage:
  UNKNOWN          0.00	  B
  ARRAY            0.00	  B
  DYNAMIC_ARRAY    256.00  B
  DICTIONARY       0.00	  B
  RING_QUEUE       0.00	  B
  BST              0.00	  B
- STRING           144.00  B
+ STRING           0.00	  B
  APPLICATION      0.00	  B
  JOB              0.00	  B
  TEXTURE          1.09	MiB

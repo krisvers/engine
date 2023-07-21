@@ -79,15 +79,11 @@ b8 application_create(game_t * instance) {
 
 	renderer_set_camera(app_state.camera);
 
-
-
 	file_t file;
 	file_open(&file, "./assets/test.obj", FILE_READ);
 	file_read(&file);
 	obj_parse(&file, NULL);
 	file_close(&file);
-
-
 
 	initialized = TRUE;
 	return TRUE;

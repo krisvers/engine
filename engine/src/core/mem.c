@@ -78,6 +78,20 @@ void * kmemzero(void * ptr, u64 size) {
 	return platform_memzero(ptr, size);
 }
 
+u64 kmemcmp(void * p1, void * p2, u64 len) {
+	u8 * b1 = p1;
+	u8 * b2 = p2;
+
+	u64 err = 0;
+	for (u64 i = 0; i < len; ++i) {
+		if (b1[i] != b2[i]) {
+			++err;
+		}
+	}
+
+	return err;
+}
+
 void * kmemcpy(void * dst, void * src, u64 size) {
 	return platform_memcpy(dst, src, size);
 }
